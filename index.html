@@ -1,0 +1,2267 @@
+<!doctype html>
+<!--
+  asa-rebuild-v1 template: "Search to Pro", Apple Ads x Onboarding.
+  Ships filled in with the Fishbrain build (https://bterzic123.github.io/fishbrain-flow-rebuild-v3/) as the
+  worked example. Every block marked EDIT is app-specific and gets replaced; everything else is the engine.
+  asa-check.py fails while any Fishbrain copy is left.
+
+  EDIT zones, top to bottom:
+    1. <title>, Google Fonts link                     5. SCREENS (inside .screenwrap)
+    2. BRAND tokens (:root --b-*, shell tokens)        6. COPY: T, INTS/FISH-style data, FT per keyword, SHOTS, defaults()
+    3. SCREENS css (/* SCREENS:START */ ... END)       7. WALKTHROUGH captions (startDemo)
+    4. OVERVIEW html (hero, ASA card, intro, next)     8. PANEL (per screen) + P3 (per keyword, per screen)
+    + the META json (app, liveUrl, keywords, five ideas, keyword table, languages) right after <body>.
+
+  Keyword flows are keyed "a" and "b" everywhere (CSS --ka/--kb, classes .ka/.kb, ?flow=a|b).
+  URL: ?open=proto lands on the prototype, &step=<screen-id> opens both phones there,
+       ?embed=1&flow=a&step=<id> renders one phone alone (what shoot.sh uses).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Ad to Pro · Scriptation</title>
+<link rel="icon" href="assets/brand/appstore-icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+/* BRAND:START (EDIT) — screen tokens --b-* sampled off their screens; shell tokens in their palette */
+:root{
+  color-scheme: only light;
+  /* ---- Scriptation, sampled with palette.swift off the US App Store screenshots (assets/brand/appstore-shot-*.jpg) ---- */
+  /* store art: near-black with navy light, the mint/blue wordmark diamonds, gold laurel */
+  --b-bg:#0A0A0A; --b-night:#0A0A0A; --b-navy:#081A23; --b-navy2:#082A3B; --b-glow:#064A6C; --b-glow2:#063D57;
+  --b-mint:#73DAAD; --b-sky:#64BDE7; --b-gold:#F2CF7A;
+  /* in-app: white pages and grouped sheets, iOS-blue Next, Playback blue + voice purple, record red */
+  --b-blue:#006BFE; --b-play:#4092C9; --b-voice:#6F72C5; --b-rec:#C45D72;
+  --b-page:#FDFDFD; --b-sheet:#F2F1F6; --b-tile:#BEE3FE; --b-draft1:#ADE1F6; --b-draft2:#F8C2E1;
+  --b-hl:#DCD1FD; --b-hl-name:#AB9DFB; --b-hl-pink:#FD9BD5; --b-hl-orange:#FDAC62; --b-hl-peach:#FCDCC1; --b-hl-red:#FC7A72; --b-hl-blue:#9AC1FB;
+  --b-ink:#FFFFFF; --b-muted:#9AA3AA; --b-muted2:#6B757D; --b-card:#11181D; --b-card2:#0E1418; --b-line:#22303A;
+  --b-ios-ink:#1C1C1E; --b-ios-muted:#8A8A8E; --b-ios-line:#E3E3E8;
+  --b-font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',sans-serif;   /* in-app UI is the iOS system font */
+  --b-head:'Poppins',-apple-system,sans-serif;                                 /* App Store headlines */
+  --b-mono:'Courier Prime','Courier New',Courier,monospace;                      /* script pages */
+  --r-ctl:14px; --r-card:16px; --r-media:18px;
+  /* ---- the report shell, in scriptation.com's palette (teal #00836c / #007762, green #65bc7b, ink #212934) ---- */
+  --bg:#F2F5F4; --bg2:#FFFFFF; --surf:#FFFFFF;
+  --hair:rgba(33,41,52,.09); --hair2:rgba(33,41,52,.16);
+  --ink:#212934; --ink2:#46505C; --ink3:#7E8792;
+  --accent:#00836C; --accent-lift:#007762;
+  --panel:#FFFFFF; --panel-ink:#212934; --panel-muted:#66707B; --panel-line:#E6EAEA;
+  --accent-ink:#007762;
+}
+/* BRAND:END */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+@media(max-width:700px){.wrap{padding:0 20px}}
+
+/* ============ top bar ============ */
+.nav{position:sticky;top:0;z-index:70;background:rgba(243,246,248,.86);backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--hair)}
+.nav-in{max-width:1080px;margin:0 auto;padding:0 32px;height:58px;display:flex;align-items:center;gap:18px}
+@media(max-width:700px){.nav-in{padding:0 20px;gap:12px}}
+.nav-brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.nav-brand .mk{width:26px;height:26px;flex:none;display:block;border-radius:7px}
+.nav-brand span{color:var(--ink2);font-weight:500}
+.nav-brand b{color:var(--ink);font-weight:600}
+.nav-links{margin-left:auto;display:flex;gap:2px;align-items:center}
+.nav-links button{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink3);transition:.16s}
+.nav-links button:hover{color:var(--ink)}
+.nav-links button.on{color:var(--ink);background:#fff;box-shadow:0 1px 4px rgba(19,49,76,.08)}
+@media(max-width:640px){.nav-brand span{display:none}}
+
+.view{display:none}
+.view.on{display:block}
+
+/* ============ hero ============ */
+.hero{padding:104px 0 0;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-340px;left:50%;transform:translateX(-50%);
+  width:1100px;height:640px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(34,201,122,.16),transparent 72%)}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(40% 50% at 8% 20%,rgba(140,190,230,.32),transparent 70%),
+   radial-gradient(38% 45% at 92% 18%,rgba(19,49,76,.10),transparent 70%)}
+.hero>*{position:relative;z-index:1}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-lift);margin-bottom:26px}
+.hero h1{font-size:76px;line-height:.98;font-weight:700;letter-spacing:-.045em;margin:0 0 24px}
+@media(max-width:820px){.hero h1{font-size:50px}.hero{padding-top:70px}}
+.hero .lede{font-size:20px;line-height:1.5;font-weight:400;color:var(--ink2);max-width:600px;margin:0 auto;letter-spacing:-.012em}
+@media(max-width:820px){.hero .lede{font-size:17px}}
+.hero .meta{margin-top:30px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em}
+.hero .meta b{color:var(--ink2);font-weight:600}
+
+.stats{display:flex;justify-content:center;gap:0;margin:70px auto 0;max-width:760px;
+  border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.stat{flex:1;padding:26px 14px;text-align:center;border-left:1px solid var(--hair)}
+.stat:first-child{border-left:none}
+.stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.stat span{display:block;font-size:11.5px;color:var(--ink3);margin-top:5px;line-height:1.35}
+@media(max-width:700px){.stat b{font-size:19px}.stat{padding:18px 8px}}
+
+.proof{max-width:760px;margin:0 auto;padding:30px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:26px;text-align:left}
+@media(max-width:700px){.proof{grid-template-columns:1fr;gap:20px;padding-top:24px}}
+.proof-k{grid-column:1/-1;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink3);text-align:center;margin-bottom:-6px}
+.proof-i{display:flex;gap:12px;align-items:flex-start}
+.proof-i .tick{width:18px;height:18px;flex:none;margin-top:3px;border-radius:50%;background:rgba(34,201,122,.16);
+  display:grid;place-items:center}
+.proof-i .tick svg{width:10px;height:10px;stroke:var(--accent-lift);stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.proof-i p{font-size:14px;line-height:1.55;color:var(--ink2);margin:0}
+.proof-i p b{color:var(--ink);font-weight:700}
+
+.sec{padding:96px 0}
+.sec-k{font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
+.sec h2{font-size:38px;line-height:1.14;font-weight:700;letter-spacing:-.035em;margin:0 0 20px;max-width:680px}
+@media(max-width:820px){.sec h2{font-size:29px}.sec{padding:64px 0}}
+.sec p.body{font-size:17px;line-height:1.66;color:var(--ink2);max-width:640px;margin:0 0 18px;letter-spacing:-.008em}
+.sec p.body b{color:var(--ink);font-weight:600}
+.rule{height:1px;background:var(--hair);margin:0}
+
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px;max-width:820px}
+@media(max-width:760px){.notes{grid-template-columns:1fr}}
+.note{background:var(--surf);border:1px solid var(--hair);box-shadow:0 2px 10px rgba(19,49,76,.04);border-radius:16px;padding:24px 26px}
+.note h4{font-size:15px;font-weight:700;letter-spacing:-.015em;margin:0 0 8px}
+.note p{font-size:14px;line-height:1.6;color:var(--ink2);margin:0}
+
+.ideas{display:flex;flex-direction:column;gap:0;margin-top:14px;border-top:1px solid var(--hair)}
+.idea{display:grid;grid-template-columns:52px 1fr 180px;gap:26px;align-items:start;
+  padding:30px 4px;border-bottom:1px solid var(--hair);text-align:left;width:100%;transition:.18s}
+.idea:hover{background:rgba(255,255,255,.7)}
+@media(max-width:780px){.idea{grid-template-columns:38px 1fr;gap:16px}}
+.idea .no{font-size:13px;font-weight:700;color:var(--ink3);padding-top:4px;letter-spacing:.02em}
+.idea h3{font-size:21px;line-height:1.25;font-weight:700;letter-spacing:-.024em;margin:0 0 7px}
+@media(max-width:820px){.idea h3{font-size:18px}}
+.idea p{font-size:14.5px;line-height:1.6;color:var(--ink2);margin:0;max-width:540px}
+.idea .out{text-align:right;padding-top:3px}
+@media(max-width:780px){.idea .out{grid-column:2;text-align:left;padding-top:12px}}
+.idea .out b{display:block;font-size:19px;font-weight:700;letter-spacing:-.025em;color:var(--accent-lift);white-space:nowrap}
+.idea .out span{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.idea .seeit{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12.5px;
+  font-weight:600;color:var(--accent-lift)}
+.idea .seeit svg{width:12px;height:12px}
+
+.band{background:var(--surf);border:1px solid var(--hair);border-radius:28px;box-shadow:0 2px 10px rgba(19,49,76,.04);padding:40px 44px;margin-top:44px;
+  display:flex;align-items:center;gap:36px;flex-wrap:wrap}
+@media(max-width:700px){.band{padding:28px 24px;gap:22px}}
+.band .lab{font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.band .txt{flex:1;min-width:240px}
+.band .txt p{font-size:15.5px;line-height:1.6;color:var(--ink2);margin:0}
+.band .nums{display:flex;gap:34px}
+.band .nums div b{display:block;font-size:30px;font-weight:700;letter-spacing:-.035em;color:var(--accent-lift)}
+.band .nums div span{display:block;font-size:11px;color:var(--ink3);margin-top:2px;letter-spacing:.04em;
+  text-transform:uppercase;font-weight:600}
+
+.cta-row{display:flex;justify-content:center;margin-top:52px;align-items:center;gap:22px;flex-wrap:wrap}
+.bigbtn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#fff;
+  font-size:15px;font-weight:700;letter-spacing:-.01em;padding:15px 26px;border-radius:30px;transition:.16s}
+.bigbtn:hover{filter:brightness(1.06)}
+.bigbtn svg{width:15px;height:15px}
+
+.foot{border-top:1px solid var(--hair);padding:36px 0 70px;font-size:12.5px;line-height:1.6;color:var(--ink3)}
+
+/* ============ prototype stage ============ */
+.stage{display:grid;grid-template-columns:minmax(440px,1fr) minmax(400px,470px);gap:0;
+  align-items:start;min-height:calc(100vh - 58px)}
+@media(max-width:1080px){.stage{grid-template-columns:1fr}}
+.phonecol{padding:34px 24px 46px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.panelcol{border-left:1px solid var(--hair);background:var(--panel);color:var(--panel-ink);
+  min-height:calc(100vh - 58px);position:sticky;top:58px;max-height:calc(100vh - 58px);overflow-y:auto}
+@media(max-width:1080px){.panelcol{position:static;max-height:none;border-left:none;border-top:1px solid var(--hair)}}
+
+.phone{position:relative;width:390px;height:844px;flex:none;background:#000;border:11px solid #000;
+  border-radius:46px;box-shadow:0 0 0 1.5px #D3DAE0,0 34px 70px -22px rgba(19,49,76,.35)}
+.phone-in{position:absolute;inset:0;border-radius:36px;overflow:hidden;background:var(--b-bg);color-scheme:only light}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:104px;height:30px;background:#000;
+  border-radius:16px;z-index:60;pointer-events:none}
+.sbar{position:absolute;top:0;left:0;right:0;height:50px;z-index:55;pointer-events:none;display:flex;
+  align-items:center;justify-content:space-between;padding:14px 28px 0 34px;font:600 15px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#111;transition:color .3s}
+.sbar.light{color:#fff}
+.sbar .glyphs{display:flex;gap:5px;align-items:center}
+.homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:134px;height:5px;
+  border-radius:3px;background:#111;z-index:56;pointer-events:none;transition:background .3s}
+.homebar.light{background:rgba(255,255,255,.9)}
+.screenwrap{position:absolute;inset:0;overflow:hidden;background:var(--b-bg)}
+
+/* ============ phone screens ============ */
+/* engine: screen stack + slots (keep) */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--b-bg);color:var(--b-ink);
+  font-family:var(--b-font);
+  transform:translateX(100%);transition:transform .36s cubic-bezier(.32,.72,0,1);z-index:10;will-change:transform}
+.scr.is-active{transform:translateX(0);z-index:20}
+.scr.is-past{transform:translateX(-24%)}
+.scr.sheet{transform:translateY(100%)}
+.scr.sheet.is-active{transform:translateY(0);z-index:30}
+.scr.nofx{transition:none}
+.scr-top{flex:none;padding:52px 0 0;position:relative;z-index:2}
+.scr-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative;z-index:2}
+.scr-body::-webkit-scrollbar{display:none}
+.scr-foot{flex:none;padding:10px 20px 30px;position:relative;z-index:2;background:var(--b-bg)}
+.scr-foot.hair{border-top:1px solid var(--b-line)}
+
+/* SCREENS:START (EDIT) — their components; colours only var(--b-*) (+ white/black alpha) */
+/* No dark/light pair of their screens exists: no theme switch */
+[data-hseg=theme],#segTheme{display:none !important}
+.flow-a .only-b,.flow-b .only-a{display:none !important}
+.scr{background:var(--b-bg);color:var(--b-ink)}
+
+/* ---------- store-art screens: near-black with their navy light from the App Store screenshots ---------- */
+.scr--wel,.scr--dk{background:
+  radial-gradient(70% 34% at 0% 100%,var(--b-glow) 0%,transparent 72%),
+  radial-gradient(60% 30% at 100% 62%,var(--b-navy2) 0%,transparent 70%),
+  radial-gradient(80% 26% at 50% 0%,var(--b-navy) 0%,transparent 75%),var(--b-night)}
+.scr--wel .scr-foot,.scr--dk .scr-foot{background:transparent}
+.d-btn{display:block;width:100%;height:52px;border-radius:var(--r-ctl);background:var(--b-blue);color:#fff;
+  font:600 17px/1 var(--b-font);letter-spacing:-.01em;transition:transform .1s;box-shadow:0 10px 24px -12px rgba(0,107,254,.8)}
+.d-btn:active{transform:scale(.985)}
+.d-foot{padding:10px 22px 36px;display:flex;flex-direction:column;gap:12px}
+.d-nav{display:flex;align-items:center;height:34px;margin-top:6px;padding:0 16px}
+.d-nav .r,.d-back{width:28px;flex:none}
+.d-back{height:30px;display:grid;place-items:center;color:#fff}
+.d-back svg{width:11px;height:19px}
+.d-prog{flex:1;display:flex;gap:6px;padding:0 18px}
+.d-prog i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.14)}
+.d-prog i.on{background:linear-gradient(90deg,var(--b-mint),var(--b-sky))}
+.d-h{font:600 27px/1.14 var(--b-head);letter-spacing:-.025em;color:#fff;margin:16px 22px 0}
+.d-sub{font:400 15.5px/1.4 var(--b-font);color:var(--b-muted);margin:8px 22px 0}
+
+/* welcome */
+.w-body{display:flex;flex-direction:column;align-items:center;padding:58px 0 0;text-align:center;overflow:hidden}
+.w-mark{width:178px;display:block}
+.w-h{font:600 31px/1.1 var(--b-head);letter-spacing:-.03em;color:#fff;margin:22px 22px 0}
+.w-h em{font-style:normal;background:linear-gradient(90deg,var(--b-mint),var(--b-sky));-webkit-background-clip:text;background-clip:text;color:transparent}
+.w-sub{font:400 15.5px/1.4 var(--b-font);color:#B7C0C7;margin:10px 26px 0}
+.w-art{position:relative;width:100%;flex:1;min-height:0;margin-top:20px;overflow:hidden}
+.w-art img{position:absolute;left:50%;top:0;width:310px;transform:translateX(-50%);display:block;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 5%,#000 60%,transparent 97%),linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,transparent 0,#000 5%,#000 60%,transparent 97%),linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-composite:intersect}
+.flow-a .w-art img{width:330px;transform:translateX(-49%)}
+.w-foot{gap:12px;padding-top:0}
+.w-proof{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px}
+.w-proof img{height:38px;display:block}
+.w-proof span{font:600 13px/1.25 var(--b-head);color:#fff;text-align:left;max-width:150px}
+.w-legal{font:400 12px/1.35 var(--b-font);color:rgba(255,255,255,.42);text-align:center}
+.w-legal b{font-weight:500;color:rgba(255,255,255,.7)}
+
+/* role: five roles from the listing */
+.ro-list{padding:18px 16px 8px;display:flex;flex-direction:column;gap:9px}
+.ro-opt{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:12px 14px;border-radius:var(--r-card);
+  background:var(--b-card);border:1.5px solid var(--b-line);transition:.15s}
+.ro-opt .ic{width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--b-navy2);color:var(--b-sky)}
+.ro-opt .ic svg{width:22px;height:22px}
+.ro-opt .tx{flex:1;min-width:0}
+.ro-opt b{display:block;font:600 16px/1.2 var(--b-font);color:#fff;letter-spacing:-.01em}
+.ro-opt small{display:block;font:400 12.5px/1.32 var(--b-font);color:var(--b-muted);margin-top:3px}
+.ro-opt .ck{width:22px;height:22px;border-radius:50%;flex:none;border:1.6px solid var(--b-muted2);display:grid;place-items:center;color:transparent;font-size:12px;font-weight:800}
+.ro-opt.on{border-color:var(--b-sky);background:var(--b-card2);box-shadow:0 0 0 3px rgba(100,189,231,.12)}
+.ro-opt.on .ck{background:var(--b-sky);border-color:var(--b-sky);color:var(--b-night)}
+.ro-opt.on .ic{background:var(--b-sky);color:var(--b-night)}
+.ro-pre{font:500 12.5px/1.35 var(--b-font);color:var(--b-mint);text-align:center;margin:4px 26px 12px}
+.ro-pre.off{display:none}
+
+/* ---------- the app: white page, Courier script, their bars and sheets ---------- */
+.scr--app{background:var(--b-page);color:var(--b-ios-ink)}
+.scr--app .scr-top{background:var(--b-page);padding-top:50px;border-bottom:1px solid var(--b-ios-line);z-index:6}
+.ap-bar{display:flex;align-items:center;height:44px;padding:0 14px}
+.ap-bar b{flex:1;text-align:center;font:600 16.5px/1 var(--b-font);letter-spacing:-.01em}
+.ap-i{width:24px;height:24px;color:var(--b-ios-ink)}
+.ap-tools{display:flex;justify-content:center;gap:18px;padding:4px 0 6px}
+.ap-tools span{display:flex;flex-direction:column;align-items:center;gap:2px;font:400 11px/1 var(--b-font);color:#3A3A3C}
+.ap-tools svg{width:22px;height:22px}
+.ap-tools span.on{color:var(--b-blue)}
+.ap-title{display:flex;align-items:center;height:34px;padding:0 12px;border-top:1px solid var(--b-ios-line);background:#F7F7F7}
+.ap-title svg{width:15px;height:15px;color:#3A3A3C}
+.ap-title b{flex:1;text-align:center;font:400 14.5px/1 var(--b-font);margin-right:15px}
+.sa-coach{position:absolute;left:12px;right:12px;bottom:-40px;z-index:5;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;
+  background:rgba(10,10,10,.88);color:#fff;font:500 12.5px/1.3 var(--b-font);box-shadow:0 8px 20px -10px rgba(0,0,0,.5)}
+.sa-coach .dot{width:8px;height:8px;border-radius:50%;background:var(--b-mint);flex:none;box-shadow:0 0 0 4px rgba(115,218,173,.22)}
+.sa-body{padding:44px 0 230px;background:var(--b-page)}
+.pg{font:400 12.6px/1.36 var(--b-mono);color:#111;padding:6px 16px 0 18px}
+.pg-h{display:flex;justify-content:space-between;margin-bottom:12px;color:#222}
+.pg-h .pk{color:#111;letter-spacing:.02em}
+.pg p{margin:0 0 11px}
+.pg-s{letter-spacing:.01em}
+.pg-d{margin:0 0 11px;padding-left:48px;position:relative;border-radius:4px;transition:background .25s}
+.pg-c{display:block;font-weight:400;padding-left:66px;margin-bottom:0}
+.pg-c span{border-radius:2px;padding:0 1px}
+.pg-d p{margin:0;padding-right:8px}
+.pg mark{background:transparent;color:inherit;border-radius:2px;padding:0 1px;transition:background .4s}
+.pg-n{width:max-content;margin:6px auto 0;font:400 13px/1 var(--b-font);background:#EFEFF1;border-radius:6px;padding:5px 10px;color:#333}
+/* a: rehearse: their single-colour auto-highlight, then the line being read */
+.sa-a1 .pg-act .pg-d.mine p{background:var(--b-hl);box-shadow:-3px 0 0 var(--b-hl),3px 0 0 var(--b-hl)}
+.sa-a1 .pg-act .pg-d.cue{background:rgba(64,146,201,.09);box-shadow:inset 3px 0 0 var(--b-play)}
+.sa-a1 .pg-act .pg-d.cue.mine::after{content:attr(data-you);position:absolute;right:6px;top:-2px;font:700 9.5px/1 var(--b-font);letter-spacing:.06em;text-transform:uppercase;color:var(--b-voice);background:#fff;border:1px solid var(--b-hl-name);border-radius:8px;padding:3px 6px}
+.pg-d .vb{position:absolute;left:4px;top:-1px;width:30px;height:30px;border-radius:50%;display:none;background:#fff;box-shadow:0 0 0 1px var(--b-ios-line)}
+.pg-d .vb img{width:100%;height:100%;border-radius:50%;display:block}
+.sa-a1 .pg-act .pg-d .vb{display:block}
+/* b: notes from Draft 1 on Draft 2 once transferred: their highlight colours from screenshot 2 */
+.sa-b2 .pg-crew mark.hp{background:var(--b-hl-pink)} .sa-b2 .pg-crew mark.hc{background:var(--b-hl-peach)}
+.sa-b2 .pg-crew mark.hr{background:var(--b-hl-red)} .sa-b2 .pg-crew mark.ho{background:var(--b-hl-orange)}
+.sa-b2 .pg-crew mark.hb{background:var(--b-hl-blue)} .sa-b2 .pg-crew .pg-c span{background:var(--b-hl-name)}
+.sa-b2 .pg-crew .pg-d[data-i="1"]::before{content:'REWRITE';position:absolute;right:12px;top:4px;font:700 16px/1 'Caveat','Marker Felt',cursive;color:var(--b-rec);transform:rotate(-4deg);border-left:2px solid var(--b-rec);padding-left:8px;border-radius:40% 0 0 40%}
+.sa-done{position:absolute;left:0;right:0;bottom:0;z-index:12;padding:14px 18px 34px;background:linear-gradient(180deg,rgba(253,253,253,0),var(--b-page) 30%);display:none}
+.sa-done.on{display:block}
+.ap-btn{display:block;width:100%;height:48px;border-radius:12px;background:var(--b-blue);color:#fff;font:600 16.5px/1 var(--b-font)}
+.ap-btn.wide{box-shadow:0 10px 24px -12px rgba(0,107,254,.8)}
+
+/* a: Rehearse sheet (their grouped list) */
+.rh-sheet{position:absolute;left:0;right:0;bottom:0;z-index:10;background:var(--b-sheet);border-radius:16px 16px 0 0;padding:8px 14px 32px;
+  box-shadow:0 -12px 34px -12px rgba(0,0,0,.28);transition:transform .35s cubic-bezier(.32,.72,0,1)}
+.rh-sheet .grab{display:block;width:38px;height:5px;border-radius:3px;background:#C9C9CE;margin:0 auto 8px}
+.rh-t{display:block;text-align:center;font:600 16px/1 var(--b-font);margin-bottom:10px}
+.rh-k{display:block;font:400 13px/1 var(--b-font);color:var(--b-ios-muted);margin:12px 4px 6px}
+.rh-grp{background:#fff;border-radius:11px;padding:0 12px}
+.rh-row{display:flex;align-items:center;justify-content:space-between;min-height:44px;font:400 15px/1.2 var(--b-font)}
+.rh-row em{font-style:normal;color:var(--b-play)}
+.rh-row small{display:block;font-size:11.5px;color:var(--b-ios-muted);margin-top:2px}
+.rh-cast{display:flex;gap:6px;padding:0 0 11px}
+.rh-cast button{flex:1;height:30px;border-radius:15px;background:#EFEFF4;font:500 12.5px/1 var(--b-font);color:#3A3A3C}
+.rh-cast button.on{background:var(--b-hl);color:#2E236B;box-shadow:inset 0 0 0 1.5px var(--b-hl-name)}
+.rh-v{display:flex;align-items:center;gap:10px;min-height:46px;border-top:1px solid var(--b-ios-line)}
+.rh-v:first-child{border-top:none}
+.rh-v .pl{width:22px;height:22px;color:var(--b-voice)}
+.rh-v b{flex:1;font:400 15px/1 var(--b-font)}
+.rh-v span{font:400 12px/1.15 var(--b-font);color:var(--b-ios-muted);text-align:right;max-width:70px}
+.rh-v img{width:34px;height:34px;border-radius:50%;display:block}
+.rh-sheet .ap-btn{margin-top:14px}
+.sa-a1 .rh-sheet{transform:translateY(110%)}
+/* a: Playback bar */
+.pb{position:absolute;left:0;right:0;bottom:0;z-index:9;background:#fff;border-top:1px solid var(--b-ios-line);padding:10px 16px 30px;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}
+.sa-a1 .pb{transform:none}
+.pb-r1{display:flex;align-items:center;justify-content:space-between}
+.pb-who{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;background:var(--b-play);color:#fff;font:500 14px/1 var(--b-font)}
+.pb-who svg{width:18px;height:18px}
+.pb-who b{font-weight:500}
+.pb-sp{font:400 14px/1 var(--b-font);color:var(--b-ios-muted)}
+.pb-tg{width:46px;height:28px;border-radius:14px;background:var(--b-play);position:relative}
+.pb-tg i{position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff}
+.pb-r2{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.pb-c{width:46px;height:46px;border-radius:50%;display:grid;place-items:center}
+.pb-c svg{width:24px;height:24px}
+.pb-c.blue{background:var(--b-play)} .pb-c.voice{background:linear-gradient(135deg,var(--b-voice),#7B4FD0)}
+.pb-s{width:30px;height:30px;color:var(--b-ios-ink)}
+.pb-play{width:58px;height:58px;border-radius:50%;background:var(--b-play);display:grid;place-items:center;box-shadow:0 6px 16px -6px rgba(64,146,201,.8)}
+.pb-play svg{width:26px;height:26px}
+.pb-play .pa{display:none} .pb-play.on .pa{display:block} .pb-play.on .pl{display:none}
+.sa-a1 .sa-done{bottom:139px;background:#fff;padding:10px 16px 10px;border-top:1px solid var(--b-ios-line)}
+.sa-a1 .sa-done .ap-btn{height:44px;box-shadow:none}
+.sa-a1 .sa-body{padding-bottom:300px}
+/* b: Transfer Annotations sheet */
+.tr-sheet{position:absolute;left:8px;right:8px;bottom:22px;z-index:10;background:#fff;border-radius:14px;box-shadow:0 12px 40px -8px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.04);overflow:hidden;transition:transform .35s cubic-bezier(.32,.72,0,1),opacity .3s}
+.tr-hd{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;height:46px;padding:0 12px}
+.tr-hd b{text-align:center;font:600 16px/1 var(--b-font)}
+.tr-hd .cn{font:400 15px/1 var(--b-font);color:var(--b-blue)}
+.tr-ft{display:flex;align-items:flex-start;gap:8px;padding:4px 16px 12px}
+.tr-ft>div{flex:1;min-width:0}
+.tr-ft small{display:block;font:600 13.5px/1 var(--b-font);margin-bottom:5px}
+.tr-ft>div>span{display:block;font:400 12.5px/1.2 var(--b-font);color:#3A3A3C;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-ft .ar{align-self:center;font-size:18px;color:#8E8E93;margin-top:30px}
+.tr-ft em{display:block;font:400 13px/1 var(--b-font);font-style:normal;color:var(--b-blue);text-align:center;margin-top:6px}
+.tr-th{height:136px;border:1px solid #D8D8DC;border-radius:2px;background:#fff;padding:14px 8px 0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tr-th b{font:400 5.4px/1.2 var(--b-mono);letter-spacing:.04em;text-decoration:underline;margin-bottom:18px}
+.tr-th i{font:500 6.8px/1.2 var(--b-font);font-style:normal;border-radius:6px;padding:2px 5px;text-align:center}
+.tr-th.d1 i{background:var(--b-draft1);color:#0A3A55}
+.tr-th.d2 i{background:var(--b-draft2);color:#5A1840}
+.tr-pro{background:#F7F7F7;padding:10px 16px 6px}
+.tr-pro>b{display:block;font:600 15px/1 var(--b-font);margin-bottom:6px}
+.tr-pro>b span{color:#8E8E93;font-weight:400}
+.tr-o{display:flex;align-items:center;gap:10px;padding:6px 0}
+.tr-o>span{flex:1}
+.tr-o b{display:block;font:400 14.5px/1.2 var(--b-font)}
+.tr-o small{display:block;font:400 11px/1.25 var(--b-font);color:#48484A;margin-top:1px}
+.tg{width:44px;height:26px;border-radius:13px;background:#8E8E93;position:relative;flex:none;display:block}
+.tg::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.tg.on{background:#34C759} .tg.sky.on{background:var(--b-sky)} .tg.on::after{left:21px}
+.tr-go{padding:12px 0 14px;display:flex;justify-content:center}
+.tr-go button{width:124px;height:34px;background:var(--b-blue);color:#fff;font:500 16px/1 var(--b-font);border-radius:2px}
+.sa-b1 .tr-sheet,.sa-b2 .tr-sheet{transform:translateY(30px);opacity:0;pointer-events:none}
+.tr-dim{position:absolute;inset:0;z-index:11;background:rgba(0,0,0,.22);display:none;align-items:center;justify-content:center}
+.sa-b1 .tr-dim{display:flex}
+.tr-prog,.tr-ok{width:236px;background:#fff;border-radius:10px;box-shadow:0 14px 40px -10px rgba(0,0,0,.4)}
+.tr-prog{padding:14px 16px 10px}
+.tr-prog>b{display:block;text-align:center;font:600 13.5px/1 var(--b-font);margin-bottom:10px}
+.tr-prog div{display:flex;justify-content:space-between;align-items:center;font:400 12.5px/1 var(--b-font);color:#3A3A3C;padding:7px 0;border-top:1px solid #EFEFF1}
+.tr-prog div i{font-style:normal;color:#34C759;opacity:0;transition:opacity .2s}
+.tr-prog div.ok i{opacity:1}
+.tr-prog div.now{font-weight:600;color:#000}
+.tr-ok{display:none;text-align:center;padding:18px 16px 14px}
+.tr-ok b{display:block;font:600 16px/1 var(--b-font)}
+.tr-ok p{font:400 13px/1.35 var(--b-font);color:#3A3A3C;margin:8px 0 12px}
+.tr-ok button{width:64px;height:30px;background:var(--b-blue);color:#fff;border-radius:2px;font:500 14px/1 var(--b-font)}
+.tr-dim.done .tr-prog{display:none} .tr-dim.done .tr-ok{display:block}
+.flow-b .sa-body{padding-bottom:120px}
+
+/* ---------- the App Store product page (light) ---------- */
+.scr--stp{background:#fff;color:#000}
+.scr--stp .scr-top{background:#fff;padding-top:48px}
+.stp-nav{height:40px;display:flex;align-items:center;padding:0 10px}
+.stp-nav .bk{display:flex;align-items:center;gap:4px;color:#007AFF;font:400 17px/1 var(--b-font)}
+.stp-nav .bk svg{width:11px;height:19px}
+.stp-head{display:flex;gap:14px;padding:6px 18px 0}
+.stp-ic{width:112px;height:112px;border-radius:25px;box-shadow:0 0 0 1px rgba(0,0,0,.08);display:block;flex:none}
+.stp-ti{flex:1;min-width:0;display:flex;flex-direction:column}
+.stp-ti b{font:700 21px/1.15 var(--b-font);letter-spacing:-.02em}
+.stp-ti>span{font:400 14px/1.3 var(--b-font);color:#8A8A8E;margin-top:3px}
+.stp-get{margin-top:auto;display:flex;align-items:center;gap:8px}
+.stp-get button{height:30px;padding:0 20px;border-radius:15px;background:#007AFF;color:#fff;font:700 15px/1 var(--b-font);transition:.2s}
+.stp-get button.open{background:#E9E9EB;color:#007AFF}
+.stp-get small{font:400 9.5px/1.15 var(--b-font);color:#8A8A8E}
+.stp-stats{display:grid;grid-template-columns:repeat(4,1fr);margin:18px 0 0;padding:12px 6px;border-top:1px solid #E5E5EA;border-bottom:1px solid #E5E5EA}
+.stp-stats div{text-align:center;border-left:1px solid #E5E5EA;padding:0 4px}
+.stp-stats div:first-child{border-left:none}
+.stp-stats small{display:block;font:600 10px/1 var(--b-font);letter-spacing:.02em;color:#8A8A8E;text-transform:uppercase;white-space:nowrap}
+.stp-stats b{display:block;font:700 19px/1 var(--b-font);color:#6B6B70;margin:6px 0 5px}
+.stp-stats b.ico svg{width:22px;height:22px;display:inline-block}
+.stp-stats i{display:block;font:400 10.5px/1.1 var(--b-font);font-style:normal;color:#8A8A8E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stp-cpp{padding:12px 18px 0}
+.stp-cpp span{display:inline-block;font:600 11px/1 var(--b-font);color:#5E5E63;border:1px dashed #AEAEB2;border-radius:8px;padding:5px 8px}
+.stp-shots{display:flex;gap:10px;padding:10px 18px 0;overflow:hidden}
+.stp-shots img{width:136px;height:294px;object-fit:cover;border-radius:14px;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.07)}
+.stp-dev{display:flex;gap:14px;padding:12px 18px 0}
+.stp-dev .ph{display:flex;align-items:center;gap:4px;font:400 12.5px/1 var(--b-font);color:#8A8A8E}
+.stp-dev svg{width:14px;height:14px}
+.stp-desc{font:400 14.5px/1.4 var(--b-font);padding:12px 18px 0;color:#1C1C1E;border-top:1px solid #E5E5EA;margin-top:12px}
+.stp-q{font:400 13.5px/1.4 var(--b-font);padding:8px 18px 24px;color:#3A3A3C}
+.stp-q i{color:#8A8A8E;font-style:normal}
+
+/* ---------- the plans (proposal, store art) ---------- */
+.p-top{display:flex;align-items:center;height:34px;margin-top:4px;padding:0 16px}
+.p-top .r{width:32px;flex:none}
+.p-x{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;color:#C9D0D5;flex:none}
+.p-x svg{width:12px;height:12px}
+.p-mark{flex:1;height:22px;object-fit:contain;display:block}
+.p-kt{flex:1;text-align:center;font:600 13.5px/1 var(--b-font);color:var(--b-muted)}
+.p-body{padding:0 0 8px}
+.p-k{display:flex;align-items:center;gap:8px;margin:10px 22px 0;font:700 11.5px/1 var(--b-font);letter-spacing:.12em;text-transform:uppercase;color:var(--b-sky)}
+.p-role{letter-spacing:0;text-transform:none;font:600 11.5px/1 var(--b-font);color:var(--b-night);background:var(--b-mint);border-radius:10px;padding:4px 8px}
+.p-h{font:600 26px/1.12 var(--b-head);letter-spacing:-.025em;color:#fff;margin:9px 22px 0}
+.p-h em{font-style:normal;background:linear-gradient(90deg,var(--b-mint),var(--b-sky));-webkit-background-clip:text;background-clip:text;color:transparent}
+.p-sub{font:400 13.5px/1.38 var(--b-font);color:var(--b-muted);margin:6px 22px 0}
+.p-ul{list-style:none;margin:10px 22px 0;padding:0}
+.p-ul li{position:relative;padding:4px 0 4px 26px;font:400 14px/1.3 var(--b-font);color:#fff}
+.p-ul li::before{content:'';position:absolute;left:0;top:6px;width:17px;height:17px;border-radius:50%;background:rgba(115,218,173,.16)}
+.p-ul li::after{content:'';position:absolute;left:5px;top:10px;width:7px;height:4px;border-left:2px solid var(--b-mint);border-bottom:2px solid var(--b-mint);transform:rotate(-45deg)}
+.p-ul.sm li{font-size:13.5px}
+.p-plans{padding:12px 16px 0;display:flex;flex-direction:column;gap:8px}
+.p-plan,.p-ai{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--b-card);
+  border:1.5px solid var(--b-line);border-radius:var(--r-card);padding:10px 14px;transition:border-color .15s,background .15s}
+.p-plan.on{border-color:var(--b-sky);background:var(--b-card2);box-shadow:0 0 0 3px rgba(100,189,231,.12)}
+.p-rad{width:22px;height:22px;border-radius:50%;border:1.6px solid var(--b-muted2);flex:none;position:relative}
+.p-plan.on .p-rad{border-color:var(--b-sky)}
+.p-plan.on .p-rad::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--b-sky)}
+.p-pi{flex:1;min-width:0}
+.p-pi b{display:block;font:600 15px/1.2 var(--b-font);color:#fff;letter-spacing:-.01em}
+.p-pi>span{display:block;font:400 12px/1.3 var(--b-font);color:var(--b-muted);margin-top:3px}
+.p-pr{text-align:right;flex:none}
+.p-pr b{display:block;font:700 17px/1.1 var(--b-font);color:#fff}
+.p-pr small{display:block;font:400 10.5px/1.2 var(--b-font);color:var(--b-muted)}
+i.per{font-style:normal;display:inline-block;font:600 10.5px/1 var(--b-font);color:var(--b-gold);border:1px dashed rgba(242,207,122,.7);border-radius:6px;padding:2px 5px;vertical-align:1px}
+.p-ai{margin:8px 16px 0;width:calc(100% - 32px);border-style:dashed}
+.p-chk{width:22px;height:22px;border-radius:6px;border:1.6px solid var(--b-muted2);flex:none;position:relative}
+.p-ai.on{border-style:solid;border-color:var(--b-voice);background:rgba(111,114,197,.12)}
+.p-ai.on .p-chk{background:var(--b-voice);border-color:var(--b-voice)}
+.p-ai.on .p-chk::after{content:'';position:absolute;left:6px;top:3px;width:5px;height:10px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+.p-ai.off{display:none}
+.p-tl{display:flex;margin:14px 16px 0;padding:11px 10px 10px;border-radius:var(--r-card);background:rgba(255,255,255,.04);border:1px solid var(--b-line)}
+.p-tl div{flex:1;position:relative;padding:14px 4px 0;text-align:center}
+.p-tl div::before{content:'';position:absolute;top:4px;left:0;right:0;height:2px;background:var(--b-line)}
+.p-tl div:first-child::before{left:50%} .p-tl div:last-child::before{right:50%}
+.p-tl>div>i{position:absolute;top:0;left:50%;margin-left:-5px;width:10px;height:10px;border-radius:50%;background:var(--b-sky)}
+.p-tl div:last-child>i{background:var(--b-gold)}
+.p-tl b{display:block;font:600 11.5px/1.2 var(--b-font);color:#fff}
+.p-tl span{display:block;font:400 10.5px/1.25 var(--b-font);color:var(--b-muted);margin-top:2px}
+.p-foot{font:400 11.5px/1.35 var(--b-font);color:var(--b-muted);text-align:center;margin:-2px 4px 0}
+.p-free{font:500 14.5px/1 var(--b-font);color:#C9D0D5;padding:2px 0 0;text-align:center}
+#view-proto .scr-foot .p-free{min-height:18px}
+[data-id=paywall] .scr-foot,[data-id=offer] .scr-foot{gap:9px;padding-bottom:30px}
+.o-k{font:700 11.5px/1 var(--b-font);letter-spacing:.12em;text-transform:uppercase;color:var(--b-sky);margin:26px 22px 0}
+.o-vs{display:flex;align-items:center;gap:10px;margin:22px 16px 0;max-width:60%;margin-left:auto;margin-right:auto}
+.o-vs div{flex:1;background:var(--b-card);border:1.5px solid var(--b-line);border-radius:var(--r-card);padding:14px 10px;text-align:center}
+.o-vs div.on{border-color:var(--b-sky);box-shadow:0 0 0 3px rgba(100,189,231,.12)}
+.o-vs span{display:block;font:600 11px/1 var(--b-font);letter-spacing:.08em;text-transform:uppercase;color:var(--b-muted)}
+.o-vs b{display:block;white-space:nowrap;font:600 25px/1 var(--b-head);color:#fff;margin:10px 0 8px;letter-spacing:-.02em}
+.o-vs>i{font-style:normal;color:var(--b-muted);font-size:18px}
+.o-vs small{display:block;font:400 11.5px/1.5 var(--b-font);color:var(--b-muted)}
+.o-m{font:400 13px/1.4 var(--b-font);color:var(--b-muted);margin:14px 22px 0}
+.p-proof{display:flex;align-items:center;gap:12px;margin:12px 22px 0;padding-top:12px;border-top:1px solid var(--b-line)}
+.p-proof img{height:38px;display:block;flex:none}
+.p-proof b{display:block;font:600 15px/1.2 var(--b-font);color:#fff}
+.p-proof b{letter-spacing:.01em}
+.p-proof span{display:block;font:400 12px/1.3 var(--b-font);color:var(--b-muted);margin-top:2px}
+[data-id=offer] .p-proof{margin-top:22px}
+.scr--pw .p-ul{margin-top:12px}
+[data-id=offer] .p-ul{margin-top:20px}
+
+/* ---------- renewal reminder ---------- */
+.rm-body{padding:8px 0 10px}
+.rm-art{margin:8px 16px 0;height:322px;border-radius:24px;overflow:hidden;position:relative;padding:20px 12px 0;text-align:center;
+  background:radial-gradient(80% 60% at 20% 100%,var(--b-glow),transparent 70%),linear-gradient(180deg,var(--b-navy2),var(--b-navy));box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.rm-time{font:300 64px/1 var(--b-font);color:#fff;letter-spacing:-.02em}
+.rm-date{font:500 15px/1 var(--b-font);color:rgba(255,255,255,.8);margin-top:6px}
+.rm-note{display:flex;gap:10px;align-items:flex-start;text-align:left;margin-top:22px;padding:11px 12px;border-radius:18px;background:rgba(255,255,255,.88);color:#000;box-shadow:0 8px 24px -10px rgba(0,0,0,.5)}
+.rm-note img{width:36px;height:36px;border-radius:9px;flex:none}
+.rm-note div{flex:1;min-width:0}
+.rm-note b{display:block;font:600 13px/1.2 var(--b-font)}
+.rm-note span{display:block;font:600 13.5px/1.25 var(--b-font);margin-top:1px}
+.rm-note p{font:400 13px/1.3 var(--b-font);color:#3A3A3C;margin:1px 0 0}
+.rm-note small{font:400 11.5px/1 var(--b-font);color:#6B6B70;flex:none}
+.rm-note.dim{margin-top:8px;opacity:.6;transform:scale(.96)}
+.ios-dim{position:absolute;inset:0;z-index:40;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
+.ios-dim.on{display:flex}
+.ios-al{width:272px;border-radius:14px;background:rgba(44,44,46,.97);text-align:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif;overflow:hidden}
+.ios-al b{display:block;font-size:17px;font-weight:600;color:#fff;line-height:1.3;padding:19px 16px 0}
+.ios-al p{font-size:13px;line-height:1.35;color:#E5E5EA;padding:5px 16px 18px;margin:0}
+.ios-bt{display:flex;border-top:1px solid rgba(255,255,255,.16)}
+.ios-bt button{flex:1;height:44px;font-size:17px;color:#0A84FF}
+.ios-bt button+button{border-left:1px solid rgba(255,255,255,.16);font-weight:600}
+.nt-done{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.9);z-index:41;background:rgba(14,20,24,.96);border:1px solid var(--b-line);
+  border-radius:18px;padding:18px 22px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:.25s}
+.nt-done.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.nt-done span{width:40px;height:40px;border-radius:50%;background:var(--b-mint);color:var(--b-night);display:grid;place-items:center;font-size:20px;font-weight:800}
+.nt-done b{font:600 15px/1.2 var(--b-font);color:#fff}
+
+/* ---------- the ad: a Facebook feed post (Meta's light feed) ---------- */
+.scr--fb{background:#fff;color:#050505;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif}
+.scr--fb .scr-top{padding-top:48px;border-bottom:1px solid #E4E6EB}
+.fb-bar{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 14px}
+.fb-bar b{font:800 26px/1 -apple-system,'Helvetica Neue',sans-serif;letter-spacing:-.04em;color:#1877F2}
+.fb-bar span{display:flex;gap:8px}.fb-bar i{width:32px;height:32px;border-radius:50%;background:#E4E6EB;display:block}
+.fb-head{display:flex;align-items:center;gap:10px;padding:10px 12px 8px}
+.fb-head img{width:40px;height:40px;border-radius:50%;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.fb-head div{flex:1;line-height:1.25}
+.fb-head b{display:block;font-size:15px;font-weight:700}
+.fb-head span{font-size:12.5px;color:#65676B;display:flex;align-items:center;gap:3px}
+.fb-head span svg{width:11px;height:11px}
+.fb-head .dots{font-style:normal;color:#65676B;font-size:20px;letter-spacing:1px;line-height:1}
+.fb-text{font-size:14.5px;line-height:1.36;padding:0 12px 10px;color:#050505}
+.fb-media{position:relative;background:#000}
+.fb-media img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 40%}
+.fb-play{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(0,0,0,.42);display:grid;place-items:center}
+.fb-play svg{width:26px;height:26px;margin-left:3px}
+.fb-tag{position:absolute;left:10px;bottom:10px;font-size:10.5px;font-weight:600;letter-spacing:.02em;background:rgba(0,0,0,.58);color:#fff;border-radius:20px;padding:4px 10px;white-space:nowrap}
+.fb-cta{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F0F2F5}
+.fb-cta div{flex:1;min-width:0;line-height:1.25}
+.fb-cta .u{display:block;font-size:11.5px;color:#65676B;letter-spacing:.02em}
+.fb-cta b{display:block;font-size:15px;font-weight:700;color:#050505;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb-cta small{display:block;font-size:12px;color:#65676B;margin-top:1px}
+.fb-btn{flex:none;background:#E4E6EB;color:#050505;font-size:14.5px;font-weight:600;border-radius:6px;padding:9px 15px;transition:.2s}
+.fb-btn.open{background:#1877F2;color:#fff}
+.fb-react{display:flex;justify-content:space-around;padding:10px 12px 12px;border-bottom:6px solid #C9CCD1}
+.fb-react span{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#65676B}
+.fb-react svg{width:18px;height:18px}
+.fb-next{display:flex;gap:10px;align-items:center;padding:12px}
+.fb-next i{width:40px;height:40px;border-radius:50%;background:#E4E6EB;flex:none}
+.fb-next div{flex:1}.fb-next span{display:block;height:10px;border-radius:5px;background:#E4E6EB;width:46%}
+.fb-next span+span{margin-top:7px;width:28%}
+/* SCREENS:END */
+
+/* prototype toolbar, walkthrough, QR */
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px}
+.seg{display:inline-flex;align-items:center;background:#fff;border:1px solid #DCE2E7;border-radius:20px;padding:3px;gap:2px}
+.seg button{padding:6px 11px;border-radius:16px;font:600 12px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink2);transition:.14s}
+.seg button.on{background:var(--ink);color:#fff}
+.demo-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:20px;background:var(--accent);color:#fff;
+  font:700 12px/1 'Plus Jakarta Sans',sans-serif}
+.demo-cap{width:390px;max-width:calc(100vw - 24px);background:#fff;border:1px solid var(--hair);border-radius:16px;padding:14px 14px 12px;
+  display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(19,49,76,.07)}
+.demo-cap .bar{position:absolute;left:0;top:0;right:0;height:3px;background:#EDF1F4}
+.demo-cap .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.demo-cap p{flex:1;font-size:13.5px;line-height:1.45;color:var(--ink);margin:0;font-weight:500}
+.demo-cap button{font:700 12px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink2);padding:7px 10px;border-radius:12px;border:1px solid #DCE2E7;flex:none}
+.finger{position:absolute;z-index:90;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(19,49,76,.26);
+  border:2px solid rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none;opacity:0;left:50%;top:60%;
+  transition:left .32s cubic-bezier(.4,0,.2,1),top .32s cubic-bezier(.4,0,.2,1),opacity .2s,transform .15s}
+.finger.show{opacity:1}
+.finger.press{transform:scale(.78);background:rgba(19,49,76,.4)}
+.qr{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--hair);border-radius:16px;padding:10px 16px 10px 10px;text-align:left}
+.qr img{width:135px;height:135px;display:block;image-rendering:pixelated;border-radius:6px}
+.qr span{font-size:12.5px;line-height:1.45;color:var(--ink2)}
+.qr b{display:block;color:var(--ink);font-size:13.5px}
+@media(max-width:1080px){.qr{display:none}}
+
+#view-proto .tools{order:0} #view-proto .demo-cap{order:1} #view-proto .phone{order:2} #view-proto .chips{order:3}
+#view-proto .chiphint{order:4} #view-proto .qr{order:5}
+.cta-row .qr{order:2}
+/* on a phone: the prototype is the screen */
+@media(max-width:1px){
+  #view-proto .phonecol{padding:0 0 28px;gap:14px}
+  #view-proto .phone{width:100vw;height:calc(100svh - 58px);min-height:640px;border:0;border-radius:0;box-shadow:none;order:1}
+  #view-proto .phone-in{border-radius:0}
+  #view-proto .island,#view-proto .sbar,#view-proto .homebar{display:none}
+  #view-proto .scr-top{padding-top:12px}
+  #view-proto .scr--wel .scr-top{padding-top:0}
+  #view-proto .s-hero{height:300px}
+  #view-proto .scr-foot{padding-bottom:16px}
+  #view-proto .s-ltop{padding-top:10px}
+  #view-proto .tools{order:3;padding:0 12px}
+  #view-proto .demo-cap{position:fixed;left:12px;right:12px;bottom:12px;width:auto;max-width:none;z-index:95}
+  #view-proto .chips{order:4;padding:0 12px}
+  #view-proto .chiphint{order:5}
+}
+
+/* overview: walkthrough button */
+.herobtns{display:flex;justify-content:center;margin-top:30px}
+.ghostbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--hair2);color:var(--ink);font-size:14px;
+  font-weight:700;padding:9px 20px 9px 9px;border-radius:30px;box-shadow:0 2px 12px rgba(19,49,76,.06);transition:.16s}
+.ghostbtn:hover{box-shadow:0 4px 18px rgba(19,49,76,.1)}
+.ghostbtn .pl{width:30px;height:30px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.ghostbtn .pl svg{width:12px;height:12px;fill:#fff;margin-left:2px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:470px;margin:0 auto}
+.chip{padding:7px 13px;border-radius:20px;border:1px solid #DCE2E7;background:#fff;
+  font:600 12px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink2);transition:.14s}
+.chip:hover{color:var(--ink);border-color:#C3CCD4}
+.chip.offer{border-style:dashed;border-color:var(--b-pink);color:#C4135A}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff;border-style:solid}
+.chiphint{text-align:center;font-size:11px;color:var(--ink3);margin:0;max-width:430px}
+
+/* ============ the short panel ============ */
+.pn{padding:30px 30px 60px}
+.pn-n{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.pn-n.ctx{color:var(--panel-muted)}
+.pn-t{font-size:23px;line-height:1.18;font-weight:700;letter-spacing:-.028em;margin:8px 0 0;color:var(--panel-ink)}
+.pn-hyp{font-size:15px;line-height:1.62;color:#2E3D4B;margin:16px 0 0}
+.pn-hyp b{font-weight:700;color:var(--panel-ink)}
+.pn-out{margin-top:22px;border-top:1px solid var(--panel-line);padding-top:18px}
+.pn-out .lab{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--panel-muted)}
+.pn-out .v{font-size:31px;font-weight:700;letter-spacing:-.035em;color:var(--accent-ink);margin-top:7px;line-height:1}
+.pn-kept{margin-top:22px;font-size:12.5px;line-height:1.55;color:var(--panel-muted)}
+.pn-kept b{color:#2E3D4B;font-weight:700}
+.pn-foot{font-size:11.5px;line-height:1.55;color:var(--panel-muted);border-top:1px solid var(--panel-line);
+  padding-top:14px;margin-top:26px}
+.pn-sep{height:1px;background:var(--panel-line);margin:26px 0}
+.hidden{display:none !important}
+
+/* ============ lavender mist page, lit like the Ads Manager research page ============ */
+:root{--bg:#F4F2FA}
+body{background:radial-gradient(60% 50% at 0% 0%,rgba(115,70,224,.08),transparent 70%),
+  radial-gradient(55% 45% at 100% 100%,rgba(232,101,15,.07),transparent 70%),#F4F2FA;background-attachment:fixed}
+.nav{background:rgba(244,242,250,.86)}
+.hero::after{background:radial-gradient(40% 50% at 8% 20%,rgba(115,70,224,.12),transparent 70%),
+   radial-gradient(38% 45% at 92% 18%,rgba(232,101,15,.07),transparent 70%)}
+/* ============ keyword colours (Adapty ASA orange / purple; change only on a clash with their brand) ============ */
+:root{--ka:#1877F2;--ka-bg:#EAF2FE;--ka-ink:#0B5CC7;--kb:#C2357E;--kb-bg:#FCEEF5;--kb-ink:#96215E}
+
+/* ---- ASA block on the overview ---- */
+.asa{padding:76px 0 0}
+.asa-card{position:relative;overflow:hidden;border-radius:28px;background:#0C1B2C;color:#fff;padding:46px 48px;
+  display:grid;grid-template-columns:1fr 250px;gap:44px;align-items:center;box-shadow:0 30px 60px -30px rgba(12,27,44,.55)}
+.asa-card::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(50% 70% at 0% 0%,rgba(115,70,224,.38),transparent 70%),radial-gradient(40% 60% at 100% 100%,rgba(232,101,15,.22),transparent 70%)}
+.asa-card>*{position:relative}
+.asa-card .sec-k{color:#B9A4FF;margin-bottom:14px}
+.asa-card h2{font-size:36px;line-height:1.12;font-weight:700;letter-spacing:-.035em;margin:0 0 18px;color:#fff}
+.asa-card h2 em{font-style:normal;background:linear-gradient(90deg,#FF9A4D,#A57CFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.asa-card p{font-size:16.5px;line-height:1.66;color:rgba(255,255,255,.78);margin:0;max-width:600px}
+.asa-card p b{color:#fff;font-weight:700}
+.asa-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;align-items:center}
+.asa-go{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,#7346E0,#9B6BFF);color:#fff;text-decoration:none;
+  font-size:16px;font-weight:700;letter-spacing:-.01em;padding:17px 28px;border-radius:32px;box-shadow:0 10px 30px -8px rgba(115,70,224,.7);transition:.16s}
+.asa-go:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.asa-go svg{width:16px;height:16px}
+.asa-alt{display:inline-flex;align-items:center;gap:8px;color:#fff;font-size:14.5px;font-weight:700;padding:15px 20px;border-radius:30px;
+  border:1px solid rgba(255,255,255,.22)}
+.asa-alt:hover{background:rgba(255,255,255,.08)}
+.asa-alt svg{width:13px;height:13px}
+.asa-stats{display:flex;flex-direction:column;gap:0;border-left:1px solid rgba(255,255,255,.14);padding-left:30px}
+.asa-stats div{padding:14px 0;border-top:1px solid rgba(255,255,255,.1)}
+.asa-stats div:first-child{border-top:none;padding-top:0}
+.asa-stats b{display:block;font-size:34px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.asa-stats b.o{color:#FF9A4D} .asa-stats b.p{color:#B9A4FF}
+.asa-stats span{display:block;font-size:12.5px;color:rgba(255,255,255,.62);margin-top:6px;line-height:1.4}
+@media(max-width:860px){.asa-card{grid-template-columns:1fr;padding:34px 26px;gap:28px}.asa-stats{border-left:none;padding-left:0;flex-direction:row;gap:18px;flex-wrap:wrap}
+  .asa-stats div{border-top:none;padding:0;flex:1;min-width:120px}.asa-card h2{font-size:28px}.asa{padding-top:56px}}
+
+html,body{overflow-x:clip}
+.nav-links{gap:4px}
+.nav-links button{padding:10px 20px;font-size:15px;border-radius:11px}
+.nav-links button.on{box-shadow:0 1px 6px rgba(19,49,76,.12),0 0 0 1px rgba(19,49,76,.06)}
+@media(max-width:640px){.nav-links button{padding:8px 13px;font-size:13.5px}}
+/* ---- overview: keyword table + next steps ---- */
+.band-kw{margin-top:12px!important;padding-top:12px;border-top:1px solid var(--hair);font-size:14.5px!important}
+.band-kw b{color:#7346E0;font-weight:700}
+.kwsec,.next{margin-top:96px}
+.kwt{margin-top:28px;background:#fff;border:1px solid var(--hair);border-radius:22px;overflow:hidden;box-shadow:0 2px 10px rgba(19,49,76,.04)}
+.kwt-h,.kwt-r{display:grid;grid-template-columns:150px 1fr 1fr 28px;gap:20px;align-items:center;padding:16px 24px;text-align:left;width:100%}
+.kwt-h{background:#FAF9FD;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.kwt-h .f{color:var(--ka-ink);text-transform:none;letter-spacing:-.01em;font-size:14px;font-weight:800}
+.kwt-h .b{color:var(--kb-ink);text-transform:none;letter-spacing:-.01em;font-size:14px;font-weight:800}
+.kwt-h::after{content:''}
+.kwt-r{border-top:1px solid var(--hair);font-size:14.5px;line-height:1.45;color:var(--ink2);transition:.15s}
+.kwt-r:hover{background:#FAF9FD}
+.kwt-r .s{font-weight:700;color:var(--ink)}
+.kwt-r i{font-style:normal;color:var(--ink3);font-weight:700;transition:.15s}
+.kwt-r:hover i{color:var(--ink);transform:translateX(3px)}
+.kwhyp{display:inline-block;margin-left:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ka-ink);
+  border:1px dashed rgba(232,101,15,.5);border-radius:5px;padding:1px 6px;vertical-align:2px}
+@media(max-width:760px){.kwt-h{display:none}.kwt-r{grid-template-columns:1fr;gap:6px;padding:16px 20px}.kwt-r i{display:none}
+  .kwt-r span[data-k]::before{content:attr(data-k);font-weight:700}
+  .kwt-r span.ka::before{color:var(--ka-ink)} .kwt-r span.kb::before{color:var(--kb-ink)}}
+.next-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+.next-steps div{background:#fff;border:1px solid var(--hair);border-radius:20px;padding:24px 24px 26px;position:relative}
+.next-steps div::before{content:'';position:absolute;left:24px;right:24px;top:0;height:3px;border-radius:0 0 3px 3px;
+  background:linear-gradient(90deg,#E8650F,#7346E0)}
+.next-steps b{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7346E0}
+.next-steps h4{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:8px 0 8px}
+.next-steps p{font-size:14px;line-height:1.55;color:var(--ink2);margin:0}
+@media(max-width:760px){.next-steps{grid-template-columns:1fr}}
+.proof2{max-width:860px;grid-template-columns:1fr 1fr;gap:34px;padding-top:34px}
+.proof2 .proof-col{display:flex;flex-direction:column;gap:14px}
+.proof2 .proof-k{grid-column:auto;text-align:left;margin-bottom:2px}
+.proof2 .asa-col{border-left:1px solid var(--hair);padding-left:34px}
+.proof2 .asa-col .proof-k{color:#7346E0}
+.proof2 .asa-col .tick{background:rgba(115,70,224,.14)}
+.proof2 .asa-col .tick svg{stroke:#7346E0}
+@media(max-width:700px){.proof2{grid-template-columns:1fr;gap:26px}.proof2 .asa-col{border-left:none;padding-left:0}}
+/* ---- nav tools (prototype only) ---- */
+.nav-tools{display:none;align-items:center;gap:8px;margin-left:auto}
+body.proto .nav-tools{display:flex}
+body.proto .nav-links{margin-left:14px}
+.nav-in{max-width:none}
+#view-over .wrap{max-width:1080px}
+body:not(.proto) .nav-in{max-width:1080px}
+.hdemo-btn{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;font:700 12.5px/1 'Plus Jakarta Sans',sans-serif;
+  padding:9px 15px;border-radius:20px;transition:.16s;white-space:nowrap}
+.hdemo-btn:hover{filter:brightness(1.06)}
+.hdemo-btn svg{width:11px;height:11px;fill:#fff}
+@media(max-width:899px){body.proto .nav-tools{display:none}}
+
+/* ---- the two-phone stage ---- */
+html:not(.embed) #view-proto .stage{display:none}
+#view-proto.on{display:block}
+.p3{display:grid;grid-template-columns:minmax(0,1fr) 360px;height:calc(100vh - 58px);height:calc(100svh - 58px)}
+.p3-stage{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:18px 20px 12px}
+.p3-mtools{display:none;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.p3-mtog{display:none;margin:0 auto 12px;background:#fff;border:1px solid #DCE2E7;border-radius:22px;padding:3px;gap:3px}
+.p3-mtog button{padding:8px 16px;border-radius:18px;font:700 13px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink2)}
+.p3-mtog button[data-one=a].on{background:var(--ka);color:#fff}
+.p3-mtog button[data-one=b].on{background:var(--kb);color:#fff}
+.duo{flex:1;min-height:0;display:flex;justify-content:center;align-items:center;gap:22px}
+.flow{display:flex;flex-direction:column;align-items:center;gap:10px}
+.kwcard{width:188px;flex:none;align-self:center;border-radius:16px;padding:16px 16px 18px;border:1px solid}
+.kwcard.ka{background:var(--ka-bg);border-color:rgba(232,101,15,.25)} .kwcard.kb{background:var(--kb-bg);border-color:rgba(115,70,224,.25)}
+.kwcard .k{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.kwcard .q{display:flex;align-items:flex-start;gap:7px;font-size:16px;line-height:1.25;font-weight:800;letter-spacing:-.02em;margin:9px 0 10px}
+.kwcard .q svg{width:15px;height:15px;flex:none;margin-top:3px}
+.kwcard.ka .q{color:var(--ka-ink)} .kwcard.kb .q{color:var(--kb-ink)}
+.kwcard p{font-size:12.5px;line-height:1.5;color:var(--ink2)}
+.kwcard .who{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:12px 0 4px}
+.kwpill{display:none;align-items:center;gap:7px;font-weight:800;font-size:13px;padding:7px 14px 7px 11px;border-radius:20px;white-space:nowrap}
+.kwpill svg{width:13px;height:13px}
+.kwpill.ka{background:var(--ka-bg);color:var(--ka-ink)} .kwpill.kb{background:var(--kb-bg);color:var(--kb-ink)}
+.kwpill small{font-weight:600;opacity:.7;font-size:11px}
+.p3.top .kwcard{display:none} .p3.top .kwpill{display:inline-flex}
+.pbox{position:relative;flex:none}
+.pbox iframe{position:absolute;top:0;left:0;width:390px;height:844px;border:0;transform-origin:0 0;border-radius:46px;background:transparent}
+.pbox::after{content:'';position:absolute;inset:-5px;border-radius:52px;pointer-events:none;transition:box-shadow .2s}
+.flow.ka .pbox::after{box-shadow:0 0 0 3px var(--ka),0 30px 60px -28px rgba(232,101,15,.45)}
+.flow.kb .pbox::after{box-shadow:0 0 0 3px var(--kb),0 30px 60px -28px rgba(115,70,224,.45)}
+.p3-bar{flex:none;min-height:46px;display:flex;align-items:center;justify-content:center;margin-top:12px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.step{position:relative;padding:8px 13px;border-radius:20px;border:1px solid #DCE2E7;background:#fff;
+  font:600 12px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink2);transition:.14s}
+.step:hover{color:var(--ink);border-color:#C3CCD4}
+.step.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.step.diff::after{content:'';position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;
+  background:linear-gradient(90deg,var(--ka) 50%,var(--kb) 50%);box-shadow:0 0 0 2px var(--bg)}
+.hcap{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:16px;padding:10px 12px 10px 18px;max-width:760px;width:100%}
+.hcap p{flex:1;font-size:13.5px;line-height:1.4;font-weight:600;margin:0}
+.hcap .bar{width:64px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);overflow:hidden;flex:none}
+.hcap .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s linear}
+.hcap button{font-size:12px;font-weight:700;padding:7px 13px;border-radius:14px;background:rgba(255,255,255,.14)}
+
+/* ---- panel ---- */
+.p3-panel{border-left:1px solid var(--hair);background:var(--panel);color:var(--panel-ink);overflow-y:auto;min-height:0}
+.p3-panel .pn{padding:24px 26px 40px}
+.sh{position:relative;overflow:hidden;border-radius:16px;margin-bottom:24px;background:#0C1B2C;color:#fff;
+  box-shadow:0 14px 30px -18px rgba(12,27,44,.6)}
+.sh::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 90% at 0% 0%,rgba(115,70,224,.42),transparent 70%),radial-gradient(60% 80% at 100% 100%,rgba(232,101,15,.22),transparent 70%)}
+.sh>*{position:relative}
+.sh summary{list-style:none;cursor:pointer;padding:15px 16px 14px}
+.sh summary::-webkit-details-marker{display:none}
+.sh .top{display:flex;align-items:flex-start;gap:10px}
+.sh .lab{flex:1;font-size:14px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.sh .lab small{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#B9A4FF;margin-bottom:4px}
+.sh .more{flex:none;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.75);padding:5px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.2);white-space:nowrap}
+.sh[open] .more .o{display:none} .sh:not([open]) .more .c{display:none}
+.sh .lit{display:flex;align-items:center;gap:6px;margin-top:13px}
+.sh .lit button{width:30px;height:26px;border-radius:8px;font:800 11px/1 'Plus Jakarta Sans',sans-serif;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.45);transition:.2s}
+.sh .lit button:hover{color:#fff}
+.sh .lit button.on{background:var(--accent);color:#0C1B2C;box-shadow:0 0 0 3px rgba(34,201,122,.25),0 0 18px rgba(34,201,122,.55)}
+.sh .lit span{margin-left:auto;font-size:11px;font-weight:600;color:rgba(255,255,255,.6);white-space:nowrap}
+.sh ol{list-style:none;padding:0 16px 12px;margin:0}
+.sh li{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;line-height:1.4;color:rgba(255,255,255,.82);cursor:pointer}
+.sh li:hover{color:#fff}
+.sh li.on{color:#fff;font-weight:700}
+.sh li .n{font-weight:800;color:rgba(255,255,255,.4);font-size:11px;width:16px;flex:none}
+.sh li.on .n{color:var(--accent)}
+.sh li .t{flex:1}
+.sh li .o{font-weight:700;color:#3EE690;font-size:11.5px;white-space:nowrap}
+.pn-badge{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--panel-muted)}
+.pn-badge i{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--ka) 50%,var(--kb) 50%)}
+.pn-badge.same i{background:#C4CCD4}
+.kc{border-radius:14px;padding:15px 16px 15px 17px;margin-top:12px;border-left:4px solid}
+.kc.ka{background:var(--ka-bg);border-color:var(--ka)} .kc.kb{background:var(--kb-bg);border-color:var(--kb)}
+.kc .kk{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;letter-spacing:-.01em}
+.kc.ka .kk{color:var(--ka-ink)} .kc.kb .kk{color:var(--kb-ink)}
+.kc .kk svg{width:12px;height:12px}
+.kc p{font-size:13.5px;line-height:1.55;color:#2E3D4B;margin:7px 0 0}
+.kc p b{color:var(--panel-ink);font-weight:700}
+.kc .ko{display:flex;align-items:baseline;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid rgba(19,49,76,.08)}
+.kc .ko span{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--panel-muted)}
+.kc .ko b{font-size:15.5px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.kc.ka .ko b{color:var(--ka-ink)} .kc.kb .ko b{color:var(--kb-ink)}
+.kc .ko b.nc{font-size:13px;color:var(--panel-muted)}
+.hyptag{display:block;margin-top:10px;font-size:11.5px;line-height:1.45;font-weight:600;color:var(--ka-ink);background:#fff;border:1px dashed rgba(232,101,15,.45);border-radius:8px;padding:7px 9px}
+.hyptag b{font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:10px;margin-right:4px}
+.pn-note{margin-top:14px;font-size:12.5px;line-height:1.55;color:#2E3D4B;background:#F4F2FA;border-radius:12px;padding:12px 14px}
+.pn-also{margin-top:20px;border-top:1px solid var(--panel-line);padding-top:16px}
+.pn-also .lab{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--panel-muted)}
+.pn-also .row{display:flex;gap:10px;align-items:baseline;margin-top:9px;font-size:13px;line-height:1.4;color:#2E3D4B;font-weight:600}
+.pn-also .row .o{margin-left:auto;font-weight:700;color:var(--accent-ink);white-space:nowrap;font-size:12.5px}
+.drawer-btn{display:none;position:fixed;right:16px;bottom:16px;z-index:80;background:var(--ink);color:#fff;
+  font:700 13px/1 'Plus Jakarta Sans',sans-serif;padding:13px 18px;border-radius:24px;box-shadow:0 10px 26px rgba(19,49,76,.32)}
+.drawer-btn i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:linear-gradient(90deg,var(--ka) 50%,var(--kb) 50%)}
+@media(max-width:1249px){
+  .p3{grid-template-columns:minmax(0,1fr)}
+  .p3-panel{position:fixed;top:58px;right:0;bottom:0;width:min(380px,92vw);transform:translateX(102%);transition:transform .25s;z-index:75;
+    box-shadow:-24px 0 50px rgba(19,49,76,.16)}
+  body.drawer .p3-panel{transform:none}
+  body.proto .drawer-btn{display:block}
+}
+@media(max-width:899px){ .p3-mtools{display:flex} }
+@media(max-width:759px){
+  .p3{height:auto;min-height:calc(100svh - 58px)}
+  .p3-stage{padding:14px 12px 80px}
+  .p3-mtog{display:inline-flex}
+  .p3.one .flow{display:none} .p3.one .flow.show{display:flex}
+  .kwcard{display:none!important} .kwpill{display:none!important}
+  .duo{flex:none}
+}
+
+/* ---- embed: the iframe is just the phone ---- */
+html.embed,html.embed body{background:transparent!important;overflow:hidden}
+html.embed .nav,html.embed #view-over,html.embed .p3,html.embed .drawer-btn,html.embed .tools,html.embed .chips,html.embed .chiphint,
+html.embed .qr,html.embed .panelcol,html.embed .demo-cap{display:none!important}
+html.embed .stage{display:block;min-height:0}
+html.embed .phonecol{padding:0;display:block}
+html.embed .phone{box-shadow:none}
+
+/* ---- App Store search screen (phone) ---- */
+.scr--as{background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Plus Jakarta Sans',sans-serif}
+.as-bar{display:flex;align-items:center;gap:10px;padding:2px 14px 12px}
+.as-field{flex:1;display:flex;align-items:center;gap:7px;background:#EEEEF0;border-radius:11px;height:37px;padding:0 10px;font-size:16px;color:#111;min-width:0}
+.as-field svg{width:15px;height:15px;flex:none;color:#8E8E93}
+.as-field span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.as-clr{margin-left:auto;width:17px;height:17px;flex:none;border-radius:50%;background:#B4B4BA;color:#fff;font:700 10px/17px sans-serif;text-align:center;font-style:normal}
+.as-cancel{color:#0A7AFF;font-size:16px;flex:none}
+.as-ad{margin:2px 14px 0;padding:13px 12px 12px;border-radius:16px;background:#EEF4FE}
+.as-row{display:flex;gap:12px;align-items:center}
+.as-ic{width:64px;height:64px;border-radius:15px;flex:none;box-shadow:0 0 0 .5px rgba(0,0,0,.14)}
+.as-meta{flex:1;min-width:0}
+.as-meta b{display:block;font-size:15.5px;font-weight:600;color:#111;letter-spacing:-.01em;line-height:1.25}
+.as-meta .s{display:block;font-size:13px;color:#8E8E93;margin-top:1px}
+.as-meta .r{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:#8E8E93}
+.as-meta .r .adb{background:#0A7AFF;color:#fff;font-weight:700;font-size:10.5px;border-radius:4px;padding:1px 5px;line-height:1.4}
+.as-get{background:#0A7AFF;color:#fff;font-weight:700;font-size:15px;padding:6px 19px;border-radius:17px;flex:none;min-width:72px;transition:.2s}
+.as-get.open{background:#E4E9F2;color:#0A7AFF}
+.as-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
+.as-shot{position:relative;aspect-ratio:9/17;border-radius:11px;overflow:hidden;background:#13314C}
+.as-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.as-shot::before{content:'';position:absolute;inset:0 0 auto 0;height:58%;background:linear-gradient(#0C2338 0,#0C2338 46%,rgba(12,35,56,0))}
+.as-shot::after{content:'';position:absolute;inset:auto 0 0 0;height:22%;background:linear-gradient(rgba(12,35,56,0),#0C2338)}
+.as-shot b{position:absolute;left:7px;right:7px;top:10px;color:#fff;font:700 12px/1.2 var(--b-font);text-align:center;letter-spacing:-.01em}
+.as-org{margin:16px 14px 0;opacity:.5}
+.as-sk{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #ECECEF}
+.as-sk i{width:52px;height:52px;border-radius:12px;background:#E6E8EC;flex:none}
+.as-sk div{flex:1}
+.as-sk span{display:block;height:10px;border-radius:5px;background:#E6E8EC;width:62%}
+.as-sk span+span{margin-top:7px;width:40%}
+.as-sk em{width:62px;height:28px;border-radius:14px;background:#EEF0F3;flex:none}
+.phone-in.dark .scr--as{background:#000;color:#fff}
+.phone-in.dark .as-field{background:#1C1C1E;color:#fff}
+.phone-in.dark .as-ad{background:#14243A}
+.phone-in.dark .as-meta b{color:#fff}
+.phone-in.dark .as-sk{border-color:#222}
+.phone-in.dark .as-sk i,.phone-in.dark .as-sk span,.phone-in.dark .as-sk em{background:#1F1F22}
+/* ---- the three ad cards under the promise card (actor video, crew video, the Spanish director ad) ---- */
+.adcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.adcard{margin:0;background:#fff;border-radius:18px;overflow:hidden;border:1px solid var(--hair)}
+.adcard .im{height:280px;background:#0A0A0A;overflow:hidden}
+.adcard img{width:100%;height:100%;object-fit:cover;display:block}
+.adcard figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.45;color:var(--ink2)}
+.adcard figcaption b{display:block;color:var(--ink);font-size:13.5px;margin-bottom:3px}
+@media(max-width:800px){.adcards{grid-template-columns:1fr}.adcard .im{height:240px}}
+/* ---- findings: three notes with a quote ---- */
+.finds{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.find{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:16px 18px}
+.find h4{font-size:15px;line-height:1.3;margin:0 0 6px;color:var(--ink)}
+.find p{font-size:13.5px;line-height:1.5;color:var(--ink2);margin:0}
+.find q{display:block;margin-top:8px;padding-left:10px;border-left:3px solid #00836C;font-size:13px;color:var(--ink);quotes:"“" "”"}
+.find small{display:block;margin-top:6px;font-size:11.5px;color:var(--ink3)}
+@media(max-width:800px){.finds{grid-template-columns:1fr}}
+/* ---- Scriptation shell: pale teal page, Meta blue (actor ad) and magenta (crew ad), far from the brand teal ---- */
+body{background:radial-gradient(60% 50% at 0% 0%,rgba(24,119,242,.07),transparent 70%),
+  radial-gradient(55% 45% at 100% 100%,rgba(194,53,126,.06),transparent 70%),#F2F5F4;background-attachment:fixed}
+.nav{background:rgba(242,245,244,.86)}
+.hero::before{background:radial-gradient(closest-side,rgba(0,131,108,.10),transparent 72%)}
+.hero::after{background:radial-gradient(40% 50% at 8% 20%,rgba(24,119,242,.09),transparent 70%),
+   radial-gradient(38% 45% at 92% 18%,rgba(194,53,126,.07),transparent 70%)}
+.asa-card{background:#0A0A0A;box-shadow:0 30px 60px -30px rgba(8,26,35,.6)}
+.asa-card::before{background:radial-gradient(50% 70% at 0% 100%,rgba(6,74,108,.75),transparent 70%),radial-gradient(40% 60% at 100% 0%,rgba(8,42,59,.8),transparent 70%)}
+.asa-card .sec-k{color:#73DAAD}
+.asa-card h2 em{background:linear-gradient(90deg,#73DAAD,#64BDE7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.asa-stats b{color:#FFFFFF} .asa-stats b.o{color:#7DB6FF} .asa-stats b.p{color:#F59BC9}
+.band-kw b{color:#007762}
+.next-steps div::before{background:linear-gradient(90deg,#1877F2,#C2357E)}
+.next-steps b{color:#007762}
+.proof2 .asa-col .proof-k{color:#0B5CC7}
+.proof2 .asa-col .tick{background:rgba(24,119,242,.12)}
+.proof2 .asa-col .tick svg{stroke:#1877F2}
+.kwcard.ka{border-color:rgba(24,119,242,.25)} .kwcard.kb{border-color:rgba(194,53,126,.28)}
+.flow.ka .pbox::after{box-shadow:0 0 0 3px var(--ka),0 30px 60px -28px rgba(24,119,242,.45)}
+.flow.kb .pbox::after{box-shadow:0 0 0 3px var(--kb),0 30px 60px -28px rgba(194,53,126,.45)}
+.kwhyp{color:var(--ka-ink);border-color:rgba(24,119,242,.45)}
+.hyptag{color:#0B4F8F;border-color:rgba(24,119,242,.4)}
+.sh{background:#0A0A0A;box-shadow:0 14px 30px -18px rgba(8,26,35,.6)}
+.sh::before{background:radial-gradient(70% 90% at 0% 100%,rgba(6,74,108,.7),transparent 70%),radial-gradient(60% 80% at 100% 0%,rgba(8,42,59,.7),transparent 70%)}
+.sh .lab small{color:#73DAAD}
+.sh .lit button.on{background:#fff;color:#0A0A0A;box-shadow:0 0 0 3px rgba(255,255,255,.2),0 0 18px rgba(100,189,231,.45)}
+.sh li.on .n{color:#fff}
+.sh li .o{color:#73DAAD}
+.hcap .bar i{background:#64BDE7}
+.pn-note{background:#EEF2F1}
+.kwpill b{font-weight:800}
+.foot p{margin:0 0 10px;max-width:900px}
+.foot p b{color:var(--ink2)}
+.chip.offer{border-color:#C0392B;color:#A93226}
+</style>
+</head>
+<body>
+
+<!-- META (EDIT): what the overview, the two-phone host and the scripts read. Ideas: exactly five, ranked.
+     kwRows: the screens where the two keyword flows differ (4-6); hypA/hypB tags a cell that needs a product
+     they do not sell today. langs: [code, button label, name used in the panel]. liveUrl must match the
+     GitHub Pages repo publish-gh.sh pushes to (the QR points at liveUrl + "?open=proto"). -->
+<script type="application/json" id="meta">
+{
+ "app": "Scriptation",
+ "liveUrl": "https://eddieatadapty.github.io/scriptation-flow-rebuild/",
+ "asaUrl": "",
+ "langs": [
+  [
+   "en",
+   "EN",
+   "English"
+  ],
+  [
+   "es",
+   "ES",
+   "Spanish"
+  ]
+ ],
+ "langNote": "Translated by us, with the prices from your Mexico App Store listing (Industry Pro MX$199 to MX$1,199, Scriptation AI from MX$399), which, like the US list, gives no billing periods. The two ads stay in English, as they run; your Spanish director ad (“Así trabaja un director con Scriptation”) is why Spanish is the second language.",
+ "kw": {
+  "a": {
+   "q": "Actors, get off book faster!",
+   "label": "Meta · Actors, get off book faster!",
+   "short": "Actors",
+   "who": "An actor with sides to learn who taps a 29-second video of an actor’s bad first rehearsal, then auto-highlight, character voices and Playback."
+  },
+  "b": {
+   "q": "New draft? No problem.",
+   "label": "Meta · New draft? No problem.",
+   "short": "New draft",
+   "who": "Someone on set who taps a video about paper revisions, then Transfer Annotations carrying the notes from Draft 1 into Draft 2."
+  }
+ },
+ "ideas": [
+  {
+   "n": 1,
+   "screen": "sample",
+   "title": "Let them try what the ad showed, on your sample script, before the plans",
+   "short": "Try the ad’s promise first",
+   "impact": "CR +10–20%",
+   "il": "to purchase",
+   "what": "Each ad shows the app doing one thing: running lines with character voices, or carrying notes into a new draft. Your app already ships a sample pair, “Draft 1 - Take Notes” and “Draft 2 - Try Transfer”. Open on it, let them do that one thing in under a minute, then show the plans."
+  },
+  {
+   "n": 2,
+   "screen": "role",
+   "title": "Ask their role once, then lead the plans with it",
+   "short": "Role in, role on the plans",
+   "impact": "CR +8–20%",
+   "il": "to purchase",
+   "what": "Your listing already sells to five roles: directors and writers, production and departments, script supervisors, actors, development executives. Ask which one they are, pre-filled when the ad already says, and let the plans list that role’s tools in your listing’s own words."
+  },
+  {
+   "n": 3,
+   "screen": "paywall",
+   "title": "Put the period and the renewal next to every price",
+   "short": "Period and renewal by every price",
+   "impact": "CR +3–8%",
+   "il": "to purchase",
+   "what": "Your US listing shows four Industry Pro prices, $14.99 to $99.99, and none says per month or per year. One reviewer “Thought I was only getting one month… it charged me $99.99”. Say the period, when it renews and how to cancel, right by the button."
+  },
+  {
+   "n": 4,
+   "screen": "offer",
+   "title": "Catch the close with your lowest Industry Pro price",
+   "short": "$14.99 when they close",
+   "impact": "CR +3–8%",
+   "il": "to purchase",
+   "what": "When someone closes the plans, show Industry Pro at $14.99, the lowest of your four Industry Pro prices, with its period and the same tools, and keep the free app one tap away, instead of ending the flow."
+  },
+  {
+   "n": 5,
+   "screen": "remind",
+   "title": "Offer a reminder before it renews",
+   "short": "A reminder before it renews",
+   "impact": "CR +3–8%",
+   "il": "to purchase",
+   "what": "After the plans, ask for notifications for one reason: a reminder before the plan renews. It answers “It charged me for the first month” directly, and the permission comes after the buying decision, not before it."
+  }
+ ],
+ "kwRows": [
+  {
+   "screen": "search",
+   "label": "The ad",
+   "a": "The actor video: “actors do not do this”, then Playback. Install now",
+   "b": "The crew video: paper revisions on set, then Transfer Annotations. See details"
+  },
+  {
+   "screen": "store",
+   "label": "App Store",
+   "a": "Screenshots lead with “Run lines and self-tape” and “Listen to scripts with lifelike voices”",
+   "b": "Screenshots lead with “Transfer notes and save hours of prep” and “Compare drafts”",
+   "hypA": true,
+   "hypB": true
+  },
+  {
+   "screen": "welcome",
+   "label": "Welcome",
+   "a": "“Actors, get off book faster.” over your Run lines screenshot",
+   "b": "“New draft? No problem.” over your marked-up Draft 1",
+   "hypA": true,
+   "hypB": true
+  },
+  {
+   "screen": "role",
+   "label": "Your role",
+   "a": "Actors already picked, from the ad",
+   "b": "Nothing picked: the crew roles lead the list"
+  },
+  {
+   "screen": "sample",
+   "label": "Try it",
+   "a": "Rehearse as Valerie on Draft 1: her lines highlighted, the other parts read aloud",
+   "b": "Transfer Annotations from Draft 1 to Draft 2, then the notes on the new pages"
+  },
+  {
+   "screen": "paywall",
+   "label": "Plans",
+   "a": "“Get off book faster.” Actor tools first, plus Scriptation AI for the AI voices",
+   "b": "“Every note, in every new draft.” Advanced Note Transfer first, then the tools of the role they pick"
+  }
+ ]
+}
+</script>
+
+
+<div class="nav">
+  <div class="nav-in">
+    <div class="nav-brand">
+      <img class="mk" src="assets/brand/appstore-icon.jpg" alt="Scriptation">
+      <b>Ad to Pro</b><span>· Scriptation</span>
+    </div>
+<div class="nav-tools" id="navTools">
+      <div class="seg" data-hseg="lang"></div>
+      <div class="seg" data-hseg="theme"><button data-htheme="light" class="on">Light</button><button data-htheme="dark">Dark</button></div>
+      <button class="hdemo-btn" data-hdemo><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>30-sec walkthrough</button>
+    </div>
+    <div class="nav-links">
+      <button class="on" data-view="over">Overview</button>
+      <button data-view="proto">Prototype</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= OVERVIEW ======================= -->
+<div class="view on" id="view-over">
+
+<!-- EDIT hero: Erly format (Ad to Pro): two Meta ads, no Apple Ads -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Your ads × Onboarding · November 2026</div>
+    <h1>Scriptation</h1>
+    <p class="lede">Your Meta ads already speak to two different people: an actor with lines to learn, and a crew member holding a new draft. Open the app on the promise each one tapped, let them try it on your sample script, and say plainly what Industry Pro costs and when it renews.</p>
+    <div class="meta">Prepared by <b>Adapty</b> · based on your US and Mexico App Store listings and screenshots, the ads on your Scriptation page in the Meta Ad Library, and public App Store reviews</div>
+    <div class="herobtns"><button class="ghostbtn" data-demo><span class="pl"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg></span>Watch the 30-second walkthrough</button></div>
+    <div class="stats">
+      <div class="stat"><b>30,000+</b><span>apps run subscriptions<br>on Adapty</span></div>
+      <div class="stat"><b>2</b><span>ad flows, with<br>5 ideas built into each</span></div>
+      <div class="stat"><b>0</b><span>design changes<br>to your art direction</span></div>
+    </div>
+
+    <div class="proof proof2">
+      <div class="proof-col">
+        <div class="proof-k">Built in Adapty Flow Builder</div>
+        <div class="proof-i"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Millions of dollars</b> in subscription revenue pass through Flow Builder every month.</p></div>
+        <div class="proof-i"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Nearly 500 apps</b> build their paywalls and onboarding in it.</p></div>
+      </div>
+      <div class="proof-col asa-col">
+        <div class="proof-k">Your ads, read 5 Nov 2026</div>
+        <div class="proof-i"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>7 active ads</b> on your Scriptation page in the Meta Ad Library, every one linking to the App Store.</p></div>
+        <div class="proof-i"><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Three audiences</b> among them: actors (3 ads), crew with a new draft (1) and directors, in Spanish (3).</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT promise card (the template's dark ASA card, Erly wording): every number from assets/ads/library/ads.json and appstore-facts.json -->
+<div class="asa">
+  <div class="wrap">
+    <div class="asa-card">
+      <div>
+        <div class="sec-k">New · Your ads × your flow</div>
+        <h2>Keep the promise <em>each ad made</em>.</h2>
+        <p>Your actor video sells <b>getting off book without a scene partner</b>: auto-highlight, character voices, Playback. Your crew video sells <b>notes that survive a new draft</b>: Transfer Annotations from Draft 1 to Draft 2. Both open the same App Store page, and both buyers then meet the same first screens. <b>Adapty picks the flow from the ad that brought the install</b>, so the first minute keeps that ad’s promise, and each ad is judged on the subscriptions it brings, not on installs.</p>
+        <div class="asa-btns">
+          <button class="asa-alt" data-view="proto">See the two ad flows
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+      <div class="asa-stats">
+        <div><b class="o">7</b><span>active ads on your Scriptation page in the Meta Ad Library, all to the App Store</span></div>
+        <div><b class="p">0 of 10</b><span>in-app purchase prices on your US listing that say per month or per year</span></div>
+        <div><b>4.76</b><span>average from 3,564 US App Store ratings</span></div>
+      </div>
+    </div>
+    <div class="adcards">
+      <figure class="adcard"><div class="im"><img src="assets/ads/ad-actor.jpg" alt="Frame from Scriptation's Meta video for actors" style="object-position:50% 35%"></div>
+        <figcaption><b>Meta · “Actors, get off book faster!”, since 27 Aug 2026</b>A 29-second video that opens on “actors do not do this”, then auto-highlight, voices and Playback, and ends on “FREE!”. Install now, to the App Store.</figcaption></figure>
+      <figure class="adcard"><div class="im"><img src="assets/ads/ad-crew.jpg" alt="Frame from Scriptation's Meta video about new drafts" style="object-position:50% 30%"></div>
+        <figcaption><b>Meta · “New draft? No problem.”, since 13 Oct 2026</b>A 28-second video: “Me when I get to set and see paper revisions being circulated”, then Transfer Annotations, Draft 1 to Draft 2. See details, to the App Store.</figcaption></figure>
+      <figure class="adcard"><div class="im"><img src="assets/ads/library/director-es.jpg" alt="Scriptation's Spanish Meta ad for directors" style="object-position:50% 30%"></div>
+        <figcaption><b>Meta · “Así trabaja un director con Scriptation”, since 1 Oct 2026</b>Your Spanish ad for directors, with two more like it. That is why the prototype also speaks Spanish, at your Mexico prices.</figcaption></figure>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT what this is -->
+<div class="sec">
+  <div class="wrap">
+    <div class="sec-k">What this is</div>
+    <h2>We followed your ads the way a new user does, then rebuilt what happens after the install.</h2>
+    <p class="body">Adapty powers subscriptions for <b>30,000+ apps</b>, so we get to see what moves conversion and ARPU across the market rather than inside one app. For Scriptation we read the <b>7 active ads</b> on your page in the Meta Ad Library and watched the two that make different promises, frame by frame; then your US and Mexico App Store listings, your screenshots and public reviews.</p>
+    <p class="body">We have not walked your live onboarding: there is no recording of it. So <b>every screen after the App Store is a proposal in your design</b>, built from your screenshots, your listing’s words and the app screens in your two videos. Every one is a hypothesis you can A/B test, and all of it is clickable.</p>
+    <div class="notes">
+      <div class="note"><h4>We did not redesign your app</h4><p>The welcome and plans use your App Store art: near-black with navy light, your wordmark, your white headlines, your Emmy laurel. The sample screens use your white page, Courier script, Rehearse sheet, Playback bar, voice picker and Transfer Annotations sheet, as your screenshots and videos show them.</p></div>
+      <div class="note"><h4>You may have tested some of this</h4><p>We cannot see your current onboarding, your plans screen, your experiment history or which billing periods your prices carry. If you have already run one of these, tell us what you saw and we will go deeper on the rest.</p></div>
+    </div>
+    <div class="finds">
+      <div class="find"><h4>No price on your US listing says how often it charges</h4><p>Ten in-app purchases, Industry Pro at $14.99, $39.99, $69.99 and $99.99, Scriptation AI from $19.99 to $99.99, none with a period. The description says “monthly and/or annual options” and that “a free 14-day trial may be available”; one reviewer writes of a “30 day free trail of Pro”.</p></div>
+      <div class="find"><h4>Two reviewers were charged what they did not expect</h4><q>Thought I was only getting one month to try it out and it charged me $99.99.</q><small>US App Store review, 7 Jun 2025, 1 star</small><q>It told me I can get the free trial and can cancel anytime. It charged me for the first month.</q><small>MarioChavez26, US App Store, 17 Jun 2025, 1 star</small></div>
+      <div class="find"><h4>Actor ads push Playback; 2026 reviews judge its voices</h4><p>Three of your seven ads are for actors and sell Playback, one with “lifelike premium voices”. Your listing says AI voices “may require a separate AI subscription”. Reviews this year:</p><q>Voices to robotic</q><small>US App Store review, 12 May 2026, 1 star</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<div class="sec">
+  <div class="wrap">
+    <div class="sec-k">The five ideas</div>
+    <h2>Ranked by what we would test first.</h2>
+    <p class="body">Each one opens that screen in both ad flows.</p>
+
+    <div class="ideas" id="ideas"></div>
+
+    <!-- EDIT band: combined outcome never above the per-idea ceilings (CR +20%); the ad layer has no range -->
+    <div class="band">
+      <div class="txt">
+        <div class="lab">Potential outcome</div>
+        <p>Run together, these five work on the same funnel at four points: what the app asks first, what they get to try, the plans and how they are priced, and what happens when someone closes them.</p>
+        <p class="band-kw"><b>On top of that,</b> each ad is its own A/B test against one shared flow, measured on subscriptions per install from that ad. We put no number on it: only that test gives one.</p>
+      </div>
+      <div class="nums">
+        <div><b>+20%</b><span>CR to purchase</span></div>
+      </div>
+    </div>
+
+    <!-- EDIT channel section heading; rows come from META.kwRows -->
+    <div class="kwsec">
+      <div class="sec-k">Two ads, two flows</div>
+      <h2>The same app, keeping two different promises.</h2>
+      <p class="body">The five ideas sit underneath both. On six screens, what someone sees depends on the ad they tapped.</p>
+      <div class="kwt" id="kwt"></div>
+    </div>
+
+    <!-- EDIT next steps -->
+    <div class="next">
+      <div class="sec-k">What happens next</div>
+      <h2>From first call to first test in two weeks.</h2>
+      <div class="next-steps">
+        <div><b>Day 1</b><h4>A period by every price</h4><p>The billing period and the renewal next to each Industry Pro price and under the button, on the plans screen you have today. No other change.</p></div>
+        <div><b>Week 1</b><h4>One flow per ad</h4><p>After a one-time SDK setup, the ad that brought the install picks the flow: actor or new draft, each opening on your sample script. Changes ship from the dashboard, with no app release.</p></div>
+        <div><b>Week 2</b><h4>A/B tests running</h4><p>Each ad measured on subscriptions, not installs, with a custom product page per ad and tests running per flow, in English and in Spanish.</p></div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <div class="qr"><img src="assets/qr-app.png" alt="QR code for the prototype"><span><b>Or open it on your phone</b>Scan to try both flows in your hand.</span></div>
+      <button class="bigbtn" data-view="proto">Open both ad flows
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT footer: where every number comes from + every hypothesis named -->
+<div class="foot">
+  <div class="wrap">
+    <p><b>Ads.</b> Meta Ad Library, read 5 Nov 2026: the Scriptation page (@scriptationapp) shows 7 active ads, all linking to the App Store. Ad 2238775826920617 (video, 29 s, started 27 Aug 2026, “Actors, get off book faster!”, Install now) and ad 2089426261964776 (video, 28 s, started 13 Oct 2026, “New draft? No problem. Scriptation carries your notes into the revised pages, so you can stay focused on the work.”, See details). Primary text and buttons are verbatim; the frames are stills from the videos; the captions we quote are the videos’ own. The ad’s headline was not part of our read, so the phone shows your App Store name under the link. Other actor ads: 928923763023906 and 27437782725920274 (“lifelike premium voices”); Spanish director ads: 1043398505390333, 2949738255370101, 30038149602440464. We found no Apple Ads running for Scriptation, so both phones start on a Meta ad.</p>
+    <p><b>Screens.</b> No recording of your onboarding exists, so every screen after the App Store is a proposal. They are built from your US App Store screenshots (the wordmark and Emmy laurel cut from screenshot 1 with their black background removed, the welcome phones cut from screenshots 8 and 2, voice avatars cut from screenshot 9) and from the app screens in the two videos: the Rehearse sheet, Playback bar, “Draft 1 - Take Notes”, “Draft 2 - Try Transfer” and their tutorial lines, Transfer Annotations, the five progress steps and “Success!”. The script page is page 2 of Draft 1 as screenshot 2 shows it. The App Store page uses your US listing and six of your US screenshots, uncut. We have not seen whether Playback or Transfer work before purchase.</p>
+    <p><b>Prices and copy.</b> Prices are your US App Store in-app purchases: Industry Pro $14.99, $39.99, $69.99, $99.99; Scriptation AI $19.99, $39.99, $59.99, $79.99, $99.99. The list gives no period, so the phones show a dashed “period” where yours goes and never name one. The listing’s own words: “monthly and/or annual options where available”, “A free 14-day trial may be available for eligible offers”, “Premium AI features and AI voice access may require a separate AI subscription”, and the 24-hour renewal line under the button. Roles, role descriptions and feature lines are your listing’s headings and bullets, verbatim (Spanish: your Mexico listing’s). Mexico prices are from your Mexico listing (Industry Pro MX$199, 499, 899, 1,199; AI MX$399 to 1,999; rated 4.85 from 170). US rating 4.76 from 3,564. Quotes are public US App Store reviews (Apple’s review feed and ScreensDesign), verbatim, with the reviewer’s name only where the feed gives it.</p>
+    <p><b>Hypotheses.</b> Per-ad flows need the ad to reach the app on first open, through your attribution setup; we have not seen it. Per-ad screenshots need a custom product page per ad in App Store Connect, linked from that ad. The welcome headlines, the role pre-fill, the sample-first order, the plans, the offer and the reminder are proposals. Impact ranges are Adapty’s expected effect from teardowns and A/B tests across subscription apps, not measured lift for Scriptation; the combined outcome stays at the highest single-idea ceiling, and the ad layer carries no range.</p>
+  </div>
+</div>
+</div><!-- /view-over -->
+
+<!-- ======================= PROTOTYPE ======================= -->
+<div class="view" id="view-proto">
+<div class="p3 side one" id="p3">
+  <div class="p3-stage" id="p3Stage">
+    <div class="p3-mtools">
+      <div class="seg" data-hseg="lang"></div>
+      <div class="seg" data-hseg="theme"><button data-htheme="light" class="on">Light</button><button data-htheme="dark">Dark</button></div>
+      <button class="hdemo-btn" data-hdemo><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>30-sec walkthrough</button>
+    </div>
+    <div class="p3-mtog" id="mtog"><button data-one="a" class="on"></button><button data-one="b"></button></div>
+    <div class="duo" id="duo">
+      <div class="kwcard ka" data-k="a"></div>
+      <div class="flow ka show" data-flow="a">
+        <div class="kwpill ka" data-k="a"></div>
+        <div class="pbox"><iframe src="?embed=1&amp;flow=a" title="Meta ad flow: actors"></iframe></div>
+      </div>
+      <div class="flow kb" data-flow="b">
+        <div class="kwpill kb" data-k="b"></div>
+        <div class="pbox"><iframe src="?embed=1&amp;flow=b" title="Meta ad flow: new draft"></iframe></div>
+      </div>
+      <div class="kwcard kb" data-k="b"></div>
+    </div>
+    <div class="p3-bar" id="p3Bar">
+      <div class="steps" id="hSteps"></div>
+      <div class="hcap hidden" id="hCap"><p id="hCapT"></p><div class="bar"><i id="hProg"></i></div><button id="hStop">Stop</button></div>
+    </div>
+  </div>
+  <aside class="p3-panel"><div class="pn" id="hPanel"></div></aside>
+</div>
+<button class="drawer-btn" id="drawerBtn"><i></i>Ideas for this step</button>
+<div class="stage">
+  <div class="phonecol">
+    <div class="tools" id="tools">
+      <div class="seg" id="segLang"></div>
+      <div class="seg" id="segTheme"><button data-theme="light" class="on">Light</button><button data-theme="dark">Dark</button></div>
+      <button class="demo-btn" id="demoBtn"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>30-sec walkthrough</button>
+    </div>
+    <div class="phone">
+      <div class="phone-in" id="phoneIn">
+        <div class="island"></div>
+        <div class="sbar" id="sbar">
+          <span>9:41</span>
+          <span class="glyphs">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7.5" width="3" height="3.5" rx="1"/><rect x="4.5" y="5.5" width="3" height="5.5" rx="1"/><rect x="9" y="3" width="3" height="8" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 10.5 5.6 7.9a3.4 3.4 0 0 1 4.8 0L8 10.5Zm0-5.6a6.4 6.4 0 0 0-4.5 1.9L1.7 4.9a9 9 0 0 1 12.6 0l-1.8 1.9A6.4 6.4 0 0 0 8 4.9Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".6" y=".6" width="20" height="10.8" rx="3" stroke="currentColor" stroke-opacity=".5"/><rect x="2.2" y="2.2" width="16.5" height="7.6" rx="1.8" fill="currentColor"/><path d="M22.3 4.1v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".5"/></svg>
+          </span>
+        </div>
+        <div class="homebar" id="homebar"></div>
+        <div class="finger" id="finger"></div>
+        <div class="screenwrap">
+
+<!-- SCREENS:START (EDIT) — one <section class="scr" data-id> per step, flow order = ORDER in the script.
+     "search" is the ad: a Facebook feed post with the Meta ad this phone came from (flow a = actors, flow b = new draft).
+     Every screen after the App Store is a proposal in Scriptation's design: no recording of their onboarding exists. -->
+<!-- THE AD: Facebook feed -->
+<section class="scr scr--fb" data-id="search">
+  <div class="scr-top"><div class="fb-bar"><b>facebook</b><span><i></i><i></i><i></i></span></div></div>
+  <div class="scr-body">
+    <div class="fb-post">
+      <div class="fb-head"><img src="assets/brand/appstore-icon.jpg" alt=""><div><b>Scriptation</b><span><span data-t="fb.spon"></span> · <svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M1 6h10M6 1c2 2 2 8 0 10M6 1c-2 2-2 8 0 10" fill="none" stroke="currentColor" stroke-width="1"/></svg></span></div><i class="dots">···</i></div>
+      <div class="fb-text" data-th="fb.text"></div>
+      <div class="fb-media">
+        <img class="only-a" src="assets/ads/ad-actor.jpg" alt="">
+        <img class="only-b" src="assets/ads/ad-crew.jpg" alt="">
+        <span class="fb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span>
+        <span class="fb-tag" data-t="fb.tag"></span>
+      </div>
+      <div class="fb-cta"><div><span class="u">ITUNES.APPLE.COM</span><b>Scriptation: Annotate Scripts</b></div><button class="fb-btn" id="adGo" data-t="fb.btn"></button></div>
+      <div class="fb-react"><span><svg viewBox="0 0 20 20"><path d="M6 9v8H3V9h3Zm2 8V9l3.5-6c1.2 0 2 .9 1.8 2.1L12.8 8H17c1 0 1.7.9 1.5 1.9l-1.3 6c-.2.7-.8 1.1-1.5 1.1H8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Like</span><span><svg viewBox="0 0 20 20"><path d="M10 3c4.4 0 8 2.9 8 6.5S14.4 16 10 16c-.9 0-1.8-.1-2.6-.4L3.5 17l1.2-3C3 12.9 2 11.3 2 9.5 2 5.9 5.6 3 10 3Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Comment</span><span><svg viewBox="0 0 20 20"><path d="M11 4l7 6-7 6v-3.5C6 12.5 3.5 14 2 17c.5-5 3-8.5 9-9V4Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Share</span></div>
+    </div>
+    <div class="fb-next"><i></i><div><span></span><span></span></div></div>
+  </div>
+</section>
+
+<!-- THE APP STORE: product page; the three screenshots are the ones that answer this ad (a custom product page) -->
+<section class="scr scr--stp" data-id="store">
+  <div class="scr-top"><div class="stp-nav"><span class="bk"><svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg><span data-t="as.back"></span></span></div></div>
+  <div class="scr-body">
+    <div class="stp-head">
+      <img class="stp-ic" src="assets/brand/appstore-icon.jpg" alt="">
+      <div class="stp-ti"><b data-t="as.name"></b><span>Scriptation LLC</span>
+        <div class="stp-get"><button id="asGet" data-t="as.get"></button><small data-th="as.iap"></small></div></div>
+    </div>
+    <div class="stp-stats">
+      <div><small data-t="as.rk"></small><b data-t="as.rv"></b><i>★★★★★</i></div>
+      <div><small data-t="as.ak"></small><b>12+</b><i data-t="as.av"></i></div>
+      <div><small data-t="as.ck"></small><b class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></b><i data-t="as.cv"></i></div>
+      <div><small data-t="as.dk"></small><b class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></b><i>Scriptation LLC</i></div>
+    </div>
+    <div class="stp-cpp"><span data-t="as.cpp"></span></div>
+    <div class="stp-shots">
+      <img class="only-a" src="assets/brand/appstore-shot-8.jpg" alt=""><img class="only-a" src="assets/brand/appstore-shot-9.jpg" alt=""><img class="only-a" src="assets/brand/appstore-shot-2.jpg" alt="">
+      <img class="only-b" src="assets/brand/appstore-shot-3.jpg" alt=""><img class="only-b" src="assets/brand/appstore-shot-4.jpg" alt=""><img class="only-b" src="assets/brand/appstore-shot-5.jpg" alt="">
+    </div>
+    <div class="stp-dev"><span class="ph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="2" width="8" height="16" rx="2"/></svg>iPhone</span><span class="ph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="2"/></svg>iPad</span><span class="ph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="16" height="10" rx="1.5"/><path d="M6 17h8"/></svg>Mac</span></div>
+    <p class="stp-desc" data-t="as.desc"></p>
+    <p class="stp-q" data-th="as.q"></p>
+  </div>
+</section>
+
+<!-- WELCOME (proposal): their App Store art: near-black, navy light, wordmark, white Poppins headline, a phone from their screenshots -->
+<section class="scr scr--wel" data-id="welcome" data-light="1">
+  <div class="scr-body w-body">
+    <img class="w-mark" src="assets/crop/wordmark.png" alt="Scriptation">
+    <h2 class="w-h" data-th="wel.h"></h2>
+    <p class="w-sub" data-t="wel.sub"></p>
+    <div class="w-art">
+      <img class="only-a" src="assets/crop/wel-actor.jpg" alt="">
+      <img class="only-b" src="assets/crop/wel-crew.jpg" alt="">
+    </div>
+  </div>
+  <div class="scr-foot w-foot">
+    <div class="w-proof"><img src="assets/crop/laurel.png" alt="Emmy Award Winning Tech"><span data-t="wel.std"></span></div>
+    <button class="d-btn" id="welGo" data-t="wel.cta"></button>
+    <p class="w-legal" data-th="wel.legal"></p>
+  </div>
+</section>
+
+<!-- YOUR ROLE (proposal): the five roles your listing sells to, in its words -->
+<section class="scr scr--dk" data-id="role" data-light="1">
+  <div class="scr-top">
+    <div class="d-nav"><button class="d-back" data-back aria-label="Back"><svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></button>
+      <div class="d-prog"><i class="on"></i><i></i><i></i></div><span class="r"></span></div>
+    <h2 class="d-h" data-t="ro.h"></h2>
+    <p class="d-sub" data-t="ro.sub"></p>
+  </div>
+  <div class="scr-body"><div class="ro-list" id="roList"></div><p class="ro-pre" id="roPre" data-t="ro.pre"></p></div>
+  <div class="scr-foot d-foot"><button class="d-btn" id="roGo" data-t="ro.cta"></button></div>
+</section>
+
+<!-- TRY IT on the sample script (proposal): a = Rehearse as Valerie; b = Transfer Annotations Draft 1 -> Draft 2 -->
+<section class="scr scr--app" data-id="sample">
+  <div class="scr-top">
+    <div class="ap-bar only-a"><svg class="ap-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 9 7 7 7-7"/></svg><b>Draft 1 - Take Notes</b><svg class="ap-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg></div>
+    <div class="ap-tools only-b">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9l8-4 8 4-8 4z"/><path d="M4 13l8 4 8-4M4 17l8 4 8-4"/></svg>Layers</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Annotate</span>
+      <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 4v12M4 13l3 3 3-3M17 20V8M14 11l3-3 3 3"/></svg>Transfer</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h10M4 10h10M4 14h6M16 13l5 3-5 3z"/></svg>Playback</span>
+    </div>
+    <div class="ap-title only-b"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5 5 15"/></svg><b>Draft 2 - Try Transfer</b></div>
+    <div class="sa-coach" id="saCoach"><span class="dot"></span><span id="saCoachT"></span></div>
+  </div>
+  <div class="scr-body sa-body" id="saBody">
+    <div class="only-a"><div class="pg pg-act">
+<div class="pg-h"><span>"Revisions"</span><span>Table Draft</span><span>1.</span></div>
+<p class="pg-s">INT. SOUNDSTAGE - SPACESHIP SET - MORNING</p>
+<p class="pg-x"><mark class="hp">Harried and under-slept</mark> CREW bustle about <mark class="hc">a standing set.</mark> ROB, a production assistant, distributes <mark class="hr">sides</mark> to CAST. VALERIE, in a <mark class="ho">captain’s uniform,</mark> <mark class="hr">highlights</mark> her lines.</p>
+<p class="pg-x">The soundstage door swings open, revealing 1st AD, DANIELLA, on the brink of losing it. <mark class="hr">Clipboard</mark> in hand, she addresses the crew:</p>
+<div class="pg-d" data-who="daniella" data-i="0"><b class="pg-c"><span>DANIELLA</span></b><p>I just got word that <u>another</u> script revision is on the way.</p></div>
+<div class="pg-d" data-who="rob" data-i="1"><b class="pg-c"><span>ROB</span></b><p>You’re kidding.</p></div>
+<div class="pg-d" data-who="daniella" data-i="2"><b class="pg-c"><span>DANIELLA</span></b><p>I wish I was.</p></div>
+<p class="pg-x">The script supervisor, TIM, pokes his head out from under a <mark class="hb">mountain of multi-colored pages.</mark></p>
+<div class="pg-d" data-who="tim" data-i="3"><b class="pg-c"><span>TIM</span></b><p>Are you sure?</p></div>
+<div class="pg-d" data-who="daniella" data-i="4"><b class="pg-c"><span>DANIELLA</span></b><p>Quite sure, I’m afraid.</p></div>
+<div class="pg-d" data-who="valerie" data-i="5"><b class="pg-c"><span>VALERIE</span></b><p>What did you hear? Lots of changes?</p></div>
+<div class="pg-d" data-who="daniella" data-i="6"><b class="pg-c"><span>DANIELLA</span></b><p>Well, I don’t want to alarm anyone, but...</p></div>
+<p class="pg-x">Daniella takes a deep breath.</p>
+<div class="pg-d" data-who="daniella" data-i="7"><b class="pg-c"><span>DANIELLA (CONT’D)</span></b><p>It’s 36 pages.</p></div>
+<p class="pg-x">Rob tosses his stack of sides into a nearby <mark class="hb">recycling bin</mark> and kicks it, injuring his foot.</p>
+<p class="pg-x"><mark class="hp">Tim’s eyes well up with tears.</mark></p>
+<div class="pg-d" data-who="tim" data-i="8"><b class="pg-c"><span>TIM</span></b><p>The script itself is only 30 pages!</p></div>
+<div class="pg-d" data-who="valerie" data-i="9"><b class="pg-c"><span>VALERIE</span></b><p>Including title pages!</p></div>
+<p class="pg-x">Rob limps to the Production Office to print new scripts.</p>
+</div></div>
+    <div class="only-b"><div class="pg pg-crew">
+<div class="pg-h"><span class="pk">PINK REVISIONS</span><span></span><span>1.</span></div>
+<p class="pg-s">INT. SOUNDSTAGE - SPACESHIP SET - MORNING</p>
+<p class="pg-x"><mark class="hp">Harried and under-slept</mark> CREW bustle about <mark class="hc">a standing set.</mark> ROB, a production assistant, distributes <mark class="hr">sides</mark> to CAST. VALERIE, in a <mark class="ho">captain’s uniform,</mark> <mark class="hr">highlights</mark> her lines.</p>
+<p class="pg-x">The soundstage door swings open, revealing 1st AD, DANIELLA, on the brink of losing it. <mark class="hr">Clipboard</mark> in hand, she addresses the crew:</p>
+<div class="pg-d" data-who="daniella" data-i="0"><b class="pg-c"><span>DANIELLA</span></b><p>I just got word that <u>another</u> script revision is on the way.</p></div>
+<div class="pg-d" data-who="rob" data-i="1"><b class="pg-c"><span>ROB</span></b><p>You’re kidding.</p></div>
+<div class="pg-d" data-who="daniella" data-i="2"><b class="pg-c"><span>DANIELLA</span></b><p>I wish I was.</p></div>
+<p class="pg-x">The script supervisor, TIM, pokes his head out from under a <mark class="hb">mountain of multi-colored pages.</mark></p>
+<div class="pg-d" data-who="tim" data-i="3"><b class="pg-c"><span>TIM</span></b><p>Are you sure?</p></div>
+<div class="pg-d" data-who="daniella" data-i="4"><b class="pg-c"><span>DANIELLA</span></b><p>Quite sure, I’m afraid.</p></div>
+<div class="pg-d" data-who="valerie" data-i="5"><b class="pg-c"><span>VALERIE</span></b><p>What did you hear? Lots of changes?</p></div>
+<div class="pg-d" data-who="daniella" data-i="6"><b class="pg-c"><span>DANIELLA</span></b><p>Well, I don’t want to alarm anyone, but...</p></div>
+<p class="pg-x">Daniella takes a deep breath.</p>
+<div class="pg-d" data-who="daniella" data-i="7"><b class="pg-c"><span>DANIELLA (CONT’D)</span></b><p>It’s 36 pages.</p></div>
+<p class="pg-x">Rob tosses his stack of sides into a nearby <mark class="hb">recycling bin</mark> and kicks it, injuring his foot.</p>
+<p class="pg-x"><mark class="hp">Tim’s eyes well up with tears.</mark></p>
+<div class="pg-d" data-who="tim" data-i="8"><b class="pg-c"><span>TIM</span></b><p>The script itself is only 30 pages!</p></div>
+<div class="pg-d" data-who="valerie" data-i="9"><b class="pg-c"><span>VALERIE</span></b><p>Including title pages!</p></div>
+<p class="pg-x">Rob limps to the Production Office to print new scripts.</p>
+</div></div>
+    <div class="pg-n">2 of 8</div>
+  </div>
+
+  <!-- a: the Rehearse sheet, in their grouped-list style -->
+  <div class="rh-sheet only-a" id="rhSheet">
+    <i class="grab"></i>
+    <b class="rh-t" data-t="rh.t"></b>
+    <div class="rh-grp"><div class="rh-row"><span data-t="rh.as"></span><em id="rhAs">Valerie ›</em></div>
+      <div class="rh-cast" id="rhCast"></div></div>
+    <small class="rh-k" data-t="rh.k1"></small>
+    <div class="rh-grp"><div class="rh-row"><span><span data-t="rh.auto"></span><small data-t="rh.autos"></small></span><i class="tg on"></i></div></div>
+    <small class="rh-k" data-t="rh.k2"></small>
+    <div class="rh-grp" id="rhVoices"></div>
+    <button class="ap-btn" id="rhGo" data-t="rh.go"></button>
+  </div>
+  <!-- a: Playback bar, as on their "Run lines and self-tape" screenshot -->
+  <div class="pb only-a" id="pbBar">
+    <div class="pb-r1"><span class="pb-who" id="pbWho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h7v6a3.5 3.5 0 0 1-7 0zM13 8h7v6a3.5 3.5 0 0 1-7 0z"/></svg><b>Valerie</b> <span>›</span></span><span class="pb-sp">1.0x</span><span class="pb-tg"><i></i></span></div>
+    <div class="pb-r2"><span class="pb-c blue"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="1.8" fill="#4092C9"/><circle cx="15" cy="12" r="1.8" fill="#4092C9"/><circle cx="10" cy="17" r="1.8" fill="#4092C9"/></svg></span>
+      <span class="pb-s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 5 8 12l9 7zM6 5v14"/></svg></span>
+      <button class="pb-play" id="pbPlay" aria-label="Play"><svg class="pl" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#fff"/></svg><svg class="pa" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="#fff"/></svg></button>
+      <span class="pb-s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 5 9 7-9 7zM18 5v14"/></svg></span>
+      <span class="pb-c voice"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 10v4M8.5 7v10M12 4v16M15.5 7v10M19 10v4"/></svg></span></div>
+  </div>
+
+  <!-- b: Transfer Annotations sheet, as in your screenshot and the ad -->
+  <div class="tr-sheet only-b" id="trSheet">
+    <div class="tr-hd"><span class="cn" data-t="tr.cancel"></span><b data-t="tr.t"></b><span></span></div>
+    <div class="tr-ft">
+      <div><small data-t="tr.from"></small><span>Draft 1 - Take Notes</span>
+        <div class="tr-th d1"><b>ATTACK OF THE TRIPLE BUFFS</b><i>Welcome!</i><i>Swipe through and take some notes.</i><i>Then open Draft 2 and try Transfer.</i></div><em data-t="tr.change"></em></div>
+      <span class="ar">→</span>
+      <div><small data-t="tr.to"></small><span>Draft 2 - Try Transfer</span>
+        <div class="tr-th d2"><b>ATTACK OF THE TRIPLE BUFFS</b><i>Tap ⇄ to transfer.</i><i>Select Draft 1 from transfer…</i></div></div>
+    </div>
+    <div class="tr-pro"><b><span data-t="tr.pro"></span> <span>⌄</span></b>
+      <div class="tr-o"><span><b data-t="tr.o1"></b><small data-t="tr.o1s"></small></span><i class="tg"></i></div>
+      <div class="tr-o"><span><b data-t="tr.o2"></b><small data-t="tr.o2s"></small></span><i class="tg sky on"></i></div>
+      <div class="tr-o"><span><b data-t="tr.o3"></b><small data-t="tr.o3s"></small></span><i class="tg sky on"></i></div>
+    </div>
+    <div class="tr-go"><button id="trGo" data-t="tr.next"></button></div>
+  </div>
+  <!-- b: Transfer in Progress -> Success!, their dialog copy from the ad -->
+  <div class="tr-dim only-b" id="trDim">
+    <div class="tr-prog" id="trProg"><b data-t="tr.pt"></b>
+      <div><span data-t="tr.p1"></span><i>✓</i></div><div><span data-t="tr.p2"></span><i>✓</i></div><div><span data-t="tr.p3"></span><i>✓</i></div><div><span data-t="tr.p4"></span><i>✓</i></div><div><span data-t="tr.p5"></span><i>✓</i></div>
+    </div>
+    <div class="tr-ok" id="trOkBox"><b data-t="tr.okh"></b><p data-t="tr.okp"></p><button id="trOk">OK</button></div>
+  </div>
+
+  <div class="sa-done" id="saDone"><button class="ap-btn wide" id="saGo" data-t="sa.cta"></button></div>
+</section>
+
+<!-- PLANS (proposal): their store art, Industry Pro at the US App Store prices; the billing period is not in the public list -->
+<section class="scr scr--dk scr--pw" data-id="paywall" data-light="1">
+  <div class="scr-top">
+    <div class="p-top"><button class="p-x" id="payClose" aria-label="Close"><svg viewBox="0 0 13 13" fill="none"><path d="M2 2 11 11M11 2 2 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><img class="p-mark" src="assets/crop/wordmark.png" alt="Scriptation"><span class="r"></span></div>
+  </div>
+  <div class="scr-body p-body">
+    <div class="p-k"><span data-t="pw.k"></span><span class="p-role" id="pwRole"></span></div>
+    <h2 class="p-h" data-th="pw.h"></h2>
+    <p class="p-sub" data-t="pw.sub"></p>
+    <ul class="p-ul" id="pwList"></ul>
+    <div class="p-plans" id="planList">
+      <button class="p-plan" data-v="hi"><span class="p-rad"></span>
+        <span class="p-pi"><b>Industry Pro</b><span data-th="pw.per"></span></span><span class="p-pr"><b data-t="pw.hi"></b></span></button>
+      <button class="p-plan" data-v="lo"><span class="p-rad"></span>
+        <span class="p-pi"><b>Industry Pro</b><span data-th="pw.per"></span></span><span class="p-pr"><b data-t="pw.lo"></b></span></button>
+    </div>
+    <button class="p-ai" id="pwAi"><span class="p-chk"></span><span class="p-pi"><b>Scriptation AI</b><span data-t="pw.ai"></span></span><span class="p-pr"><small data-t="pw.from"></small><b data-t="pw.aip"></b></span></button>
+    <div class="p-tl">
+      <div><i></i><b data-t="pw.t1"></b><span data-t="pw.t1s"></span></div>
+      <div><i></i><b data-t="pw.t2"></b><span data-t="pw.t2s"></span></div>
+      <div><i></i><b data-t="pw.t3"></b><span id="pwT3"></span></div>
+    </div>
+    <div class="p-proof"><img src="assets/crop/laurel.png" alt="Emmy Award Winning Tech"><div><b data-t="pw.rate"></b><span data-t="pw.rates"></span></div></div>
+  </div>
+  <div class="scr-foot d-foot">
+    <button class="d-btn" id="payCta" data-t="pw.cta"></button>
+    <p class="p-foot" id="payFoot"></p>
+    <button class="p-free" id="payFree" data-t="pw.free"></button>
+  </div>
+</section>
+
+<!-- OFFER ON CLOSE (proposal): the lowest Industry Pro price -->
+<section class="scr sheet scr--dk scr--pw" data-id="offer" data-light="1">
+  <div class="scr-top">
+    <div class="p-top"><span class="r"></span><span class="p-kt" data-t="of.top"></span><button class="p-x" id="offClose" aria-label="Close"><svg viewBox="0 0 13 13" fill="none"><path d="M2 2 11 11M11 2 2 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  </div>
+  <div class="scr-body p-body">
+    <div class="o-k" data-t="of.k"></div>
+    <h2 class="p-h" data-th="of.h"></h2>
+    <p class="p-sub" data-t="of.p"></p>
+    <div class="o-vs">
+      <div class="on"><span>Industry Pro</span><b data-t="pw.lo"></b><small data-th="pw.per"></small></div>
+    </div>
+    <ul class="p-ul sm"><li data-t="of.f1"></li><li data-t="of.f2"></li><li data-t="of.f3"></li></ul>
+    <p class="o-m" data-t="of.m"></p>
+    <div class="p-proof"><img src="assets/crop/laurel.png" alt="Emmy Award Winning Tech"><div><b data-t="pw.rate"></b><span data-t="pw.rates"></span></div></div>
+  </div>
+  <div class="scr-foot d-foot">
+    <button class="d-btn" id="offerCta" data-t="of.cta"></button>
+    <button class="p-free" id="offFree" data-t="of.keep"></button>
+  </div>
+</section>
+
+<!-- RENEWAL REMINDER (proposal): notifications asked after the plans, for one reason -->
+<section class="scr scr--dk" data-id="remind" data-light="1">
+  <div class="scr-top">
+    <div class="d-nav"><span class="r"></span><div class="d-prog"><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="r"></span></div>
+  </div>
+  <div class="scr-body rm-body">
+    <div class="rm-art">
+      <div class="rm-time">9:41</div><div class="rm-date" data-t="rm.date"></div>
+      <div class="rm-note"><img src="assets/brand/appstore-icon.jpg" alt=""><div><b>Scriptation</b><span data-t="rm.nt"></span><p data-t="rm.nb"></p></div><small data-t="rm.now"></small></div>
+      <div class="rm-note dim"><img src="assets/brand/appstore-icon.jpg" alt=""><div><b>Scriptation</b><span data-t="rm.nt2"></span><p data-t="rm.nb2"></p></div><small data-t="rm.ago"></small></div>
+    </div>
+    <h2 class="d-h" data-t="rm.h"></h2>
+    <p class="d-sub" data-t="rm.sub"></p>
+  </div>
+  <div class="scr-foot d-foot">
+    <button class="d-btn" id="rmOn" data-t="rm.cta"></button>
+    <button class="p-free" id="rmLater" data-t="rm.later"></button>
+  </div>
+  <div class="ios-dim" id="rmDim">
+    <div class="ios-al"><b data-t="rm.at"></b><p data-t="rm.ab"></p><div class="ios-bt"><button id="rmNo" data-t="rm.no"></button><button id="rmYes" data-t="rm.yes"></button></div></div>
+  </div>
+  <div class="nt-done" id="rmDone"><span>✓</span><b data-t="rm.done"></b></div>
+</section>
+<!-- SCREENS:END -->
+
+        </div>
+      </div>
+    </div>
+    <div class="demo-cap hidden" id="demoCap"><div class="bar"><i id="demoProg"></i></div><p id="demoTxt"></p><button id="demoStop">Stop</button></div>
+    <div class="chips" id="chips"></div>
+    <p class="chiphint">Jump to any screen — answers already filled in.</p>
+    <div class="qr"><img src="assets/qr-app.png" alt="QR code for this prototype"><span><b>Open it on your phone</b>Scan to try the flow in your hand.</span></div>
+  </div>
+  <div class="panelcol"><div class="pn" id="panel"></div></div>
+</div>
+</div><!-- /view-proto -->
+
+<script>
+/* ================= COPY (EDIT): phone-screen copy, one entry per language in META.langs order =================
+   data-t="key" sets textContent, data-th="key" sets innerHTML; {tokens} are filled by t(key,{...}). */
+var META = JSON.parse(document.getElementById('meta').textContent);
+var LANGS = META.langs.map(function(l){ return l[0]; });
+function langName(c){ return (META.langs.filter(function(l){ return l[0]===c; })[0]||[c,c,c])[2]; }
+/* ---- the overview and host pieces that come from META (rendered before any wiring below) ---- */
+(function renderMeta(){
+  var Q=function(k){ return META.kw[k].label||('“'+META.kw[k].q+'”'); };
+  var ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M16.5 9a4 4 0 0 1 0 6"/></svg>';
+  var ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var el=function(id){ return document.getElementById(id); };
+  if(el('ideas')) el('ideas').innerHTML=META.ideas.map(function(x){
+    return '<button class="idea" data-jump="'+x.screen+'"><span class="no">0'+x.n+'</span><span><h3>'+x.title+'</h3><p>'+x.what+'</p>'
+      +'<span class="seeit">See the screen '+ARROW+'</span></span><span class="out"><b>'+x.impact+'</b><span>'+x.il+'</span></span></button>'; }).join('');
+  var HYP='<span class="kwhyp">Hypothesis</span>';
+  if(el('kwt')) el('kwt').innerHTML='<div class="kwt-h"><span>Screen</span><span class="f">'+Q('a')+'</span><span class="b">'+Q('b')+'</span></div>'
+    +META.kwRows.map(function(r){ return '<button class="kwt-r" data-kwjump="'+r.screen+'"><span class="s">'+r.label+'</span>'
+      +'<span class="ka" data-k="'+META.kw.a.short+' · ">'+r.a+(r.hypA?' '+HYP:'')+'</span><span class="kb" data-k="'+META.kw.b.short+' · ">'+r.b+(r.hypB?' '+HYP:'')+'</span><i>→</i></button>'; }).join('');
+  document.querySelectorAll('.kwcard[data-k]').forEach(function(c){ var k=c.dataset.k;
+    c.innerHTML='<div class="k">Meta ad</div><div class="q">'+ICON+META.kw[k].q+'</div><span class="who">Who taps this ad</span><p>'+META.kw[k].who+'</p>'; });
+  document.querySelectorAll('.kwpill[data-k]').forEach(function(c){ c.innerHTML=ICON+'<b>Meta</b> <small>· '+META.kw[c.dataset.k].q+'</small>'; });
+  document.querySelectorAll('#mtog button').forEach(function(b){ b.textContent='Meta · '+META.kw[b.dataset.one].short; });
+  var segs=function(attr){ return META.langs.map(function(l,i){ return '<button '+attr+'="'+l[0]+'"'+(i?'':' class="on"')+'>'+l[1]+'</button>'; }).join(''); };
+  document.querySelectorAll('.seg[data-hseg=lang]').forEach(function(s){ s.innerHTML=segs('data-hlang'); });
+  if(el('segLang')) el('segLang').innerHTML=segs('data-lang');
+})();
+var T = {
+ /* the ad: their Meta ad, verbatim, as it runs in the US (not translated) */
+ 'fb.spon': ["Sponsored","Sponsored"],
+ 'fb.text': ["Actors, get off book faster!","Actors, get off book faster!"],
+ 'fb.tag':  ["Your ad · a frame from the video","Your ad · a frame from the video"],
+ 'fb.btn':  ["Install now","Install now"],
+ /* the App Store product page: US listing / Mexico listing (appstore-facts*.json, iTunes lookup) */
+ 'as.back': ["Facebook","Facebook"],
+ 'as.name': ["Scriptation: Annotate Scripts","Scriptation: Anota Guiones"],
+ 'as.get':  ["Get","Obtener"],
+ 'as.open': ["Open","Abrir"],
+ 'as.iap':  ["In-App<br>Purchases","Compras dentro<br>de la app"],
+ 'as.rk':   ["3.6K Ratings","170 calificaciones"],
+ 'as.rv':   ["4.8","4.9"],
+ 'as.ak':   ["Ages","Edad"],
+ 'as.av':   ["Years Old","años"],
+ 'as.ck':   ["Category","Categoría"],
+ 'as.cv':   ["Productivity","Productividad"],
+ 'as.dk':   ["Developer","Desarrollador"],
+ 'as.cpp':  ["A custom product page for this ad","Una página de producto para este anuncio"],
+ 'as.desc': ["Scriptation is the Emmy®-winning script annotation app trusted by directors, script supervisors, actors, development executives, and production teams on film and television sets worldwide, from prep through production.",
+             "Scriptation es la app de anotación de guiones ganadora del Emmy®, usada por directores, continuistas, actores, ejecutivos de desarrollo y equipos de producción en cine y TV."],
+ 'as.q':    ["“When I mark up my script, I use Scriptation now.” <i>(Kathy Bates)</i>","«Cuando hago anotaciones en mi guion, ahora utilizo Scriptation». <i>(Kathy Bates)</i>"],
+ /* welcome (proposal): the ad's promise over their store art */
+ 'wel.h':   ["Actors, get off book <em>faster</em>.","Actores: suelten el libreto <em>más rápido</em>."],
+ 'wel.sub': ["Highlight your character’s lines in one tap, then rehearse with character voices. No scene partner needed.","Resalta las líneas de tu personaje con un toque y ensaya con voces de personajes. Sin compañero de escena."],
+ 'wel.std': ["The industry standard app for Film & TV","La app estándar de la industria para cine y TV"],
+ 'wel.cta': ["Get started","Empezar"],
+ 'wel.legal':["By continuing, you agree to our <b>Terms of Use</b> and <b>Privacy Policy</b>","Al continuar, aceptas los <b>Términos de uso</b> y la <b>Política de privacidad</b>"],
+ /* your role: the five roles of the listing */
+ 'ro.h':    ["What do you do?","¿A qué te dedicas?"],
+ 'ro.sub':  ["Your first script opens set up for your work.","Tu primer guion se abre listo para tu trabajo."],
+ 'ro.pre':  ["Picked from the ad you tapped. Tap another to change it.","Elegido por el anuncio que tocaste. Toca otro para cambiarlo."],
+ 'ro.cta':  ["Continue","Continuar"],
+ /* try it, on their sample script */
+ 'sa.c0':   ["Your sample script. Pick your part: Scriptation reads the others.","Tu guion de muestra. Elige tu papel: Scriptation lee los demás."],
+ 'sa.c1':   ["Your lines are highlighted. Scriptation reads the other parts aloud.","Tus líneas están resaltadas. Scriptation lee en voz alta los demás papeles."],
+ 'sa.c2':   ["Your cue is next. Run the scene as often as you like.","Tu entrada es la siguiente. Ensaya la escena las veces que quieras."],
+ 'sa.cta':  ["Continue","Continuar"],
+ 'rh.t':    ["Rehearse","Ensayar"],
+ 'rh.as':   ["Rehearse as...","Ensayar como..."],
+ 'rh.k1':   ["Script","Guion"],
+ 'rh.auto': ["Auto-Highlight","Resaltado automático"],
+ 'rh.autos':["Single color","Un color"],
+ 'rh.k2':   ["Voices","Voces"],
+ 'rh.go':   ["Rehearse","Ensayar"],
+ 'rh.you':  ["Your line","Tu línea"],
+ 'tr.cancel':["Cancel","Cancelar"],
+ 'tr.t':    ["Transfer Annotations","Transferir anotaciones"],
+ 'tr.from': ["From:","De:"],
+ 'tr.to':   ["To:","A:"],
+ 'tr.change':["Change","Cambiar"],
+ 'tr.pro':  ["Pro Transfer","Transferencia Pro"],
+ 'tr.o1':   ["Collate Pages","Compilar páginas"],
+ 'tr.o1s':  ["Integrate revised pages when collated script isn’t available","Integra las páginas revisadas cuando no hay guion compilado"],
+ 'tr.o2':   ["Compare Scripts","Comparar guiones"],
+ 'tr.o2s':  ["Generate a scene-by-scene breakdown of script changes","Genera un desglose escena por escena de los cambios"],
+ 'tr.o3':   ["Transfer Bookmarks","Transferir marcadores"],
+ 'tr.o3s':  ["Transfer bookmarks into the new script","Transfiere los marcadores al nuevo guion"],
+ 'tr.next': ["Next","Siguiente"],
+ 'tr.pt':   ["Transfer in Progress","Transferencia en curso"],
+ 'tr.p1':   ["Preparing Transfer","Preparando la transferencia"],
+ 'tr.p2':   ["Analyzing Documents","Analizando documentos"],
+ 'tr.p3':   ["Initiating Transfer","Iniciando la transferencia"],
+ 'tr.p4':   ["Transferring Annotations","Transfiriendo anotaciones"],
+ 'tr.p5':   ["Finalizing Transfer","Finalizando la transferencia"],
+ 'tr.okh':  ["Success!","¡Listo!"],
+ 'tr.okp':  ["Your transfer is complete.","Tu transferencia está completa."],
+ /* the plans (proposal): Industry Pro at the US / Mexico App Store prices; no public billing period */
+ 'pw.k':    ["Industry Pro","Industry Pro"],
+ 'pw.for':  ["For {r}","Para {r}"],
+ 'pw.h':    ["Get off book <em>faster</em>.","Suelta el libreto <em>más rápido</em>."],
+ 'pw.sub':  ["Unlock the full production toolkit across all your devices.","Desbloquea el kit completo de producción en todos tus dispositivos."],
+ 'pw.per':  ['billed every <i class="per">period</i>','cobro cada <i class="per">periodo</i>'],
+ 'pw.hi':   ["$99.99","$1,199 MXN"],
+ 'pw.lo':   ["$14.99","$199 MXN"],
+ 'pw.ai':   ["Lifelike AI voices for Playback, a separate subscription","Voces de IA realistas para Playback, una suscripción aparte"],
+ 'pw.from': ["from","desde"],
+ 'pw.aip':  ["$19.99","$399 MXN"],
+ 'pw.t1':   ["Today","Hoy"],
+ 'pw.t1s':  ["Industry Pro unlocks","Se activa Industry Pro"],
+ 'pw.t2':   ["Before it renews","Antes de renovar"],
+ 'pw.t2s':  ["We remind you","Te avisamos"],
+ 'pw.t3':   ["It renews","Se renueva"],
+ 'pw.t3s':  ['{p} <i class="per">period</i>','{p} <i class="per">periodo</i>'],
+ 'pw.cta':  ["Continue","Continuar"],
+ 'pw.foot': ['{p}, billed every <i class="per">period</i>. Renews automatically unless cancelled at least 24 hours before the end of the period.','{p}, cobro cada <i class="per">periodo</i>. Se renueva automáticamente a menos que se cancele al menos 24 horas antes del final del periodo.'],
+ 'pw.plusai':[" Scriptation AI from {a}, billed separately."," Scriptation AI desde {a}, con cobro aparte."],
+ 'pw.free': ["Continue with the free app","Seguir con la app gratis"],
+ 'pw.rate': ["4.76 ★★★★★","4.85 ★★★★★"],
+ 'pw.rates':["from 3,564 ratings on the US App Store","de 170 calificaciones en el App Store de México"],
+ 'of.m':    ["Manage or cancel it anytime in your Apple Account settings.","Adminístralo o cancélalo cuando quieras en los ajustes de tu Cuenta de Apple."],
+ 'of.top':  ["Before you go","Antes de irte"],
+ 'of.k':    ["The same Industry Pro","El mismo Industry Pro"],
+ 'of.h':    ["Start at <em>$14.99</em>.","Empieza con <em>$199 MXN</em>."],
+ 'of.p':    ["The lowest of your four Industry Pro prices, with its period next to it, so nothing is a surprise.","El más bajo de tus cuatro precios de Industry Pro, con su periodo al lado, para que nada sea una sorpresa."],
+ 'of.f1':   ["Advanced Note Transfer and multi-layer transfer","Transferencia de Notas avanzada y transferencia multicapa"],
+ 'of.f2':   ["Collate pages and compare scripts","Compilación de páginas y comparación de guiones"],
+ 'of.f3':   ["Rehearsal tools for actors","Herramientas de ensayo"],
+ 'of.cta':  ["Continue with $14.99","Continuar con $199 MXN"],
+ 'of.keep': ["Keep the free app","Seguir con la app gratis"],
+ /* renewal reminder (proposal) */
+ 'rm.date': ["Tuesday","martes"],
+ 'rm.nt':   ["Your Industry Pro renews soon","Tu Industry Pro se renueva pronto"],
+ 'rm.nb':   ["You can manage or cancel it in Settings before it does.","Puedes administrarlo o cancelarlo en Ajustes antes de que pase."],
+ 'rm.now':  ["now","ahora"],
+ 'rm.nt2':  ["Welcome to Industry Pro","Te damos la bienvenida a Industry Pro"],
+ 'rm.nb2':  ["Your plan works across all your devices.","Tu plan funciona en todos tus dispositivos."],
+ 'rm.ago':  ["2w ago","hace 2 sem"],
+ 'rm.h':    ["We’ll remind you before it renews.","Te avisaremos antes de que se renueve."],
+ 'rm.sub':  ["Allow notifications and Scriptation tells you before your plan renews, so nothing is charged by surprise.","Permite las notificaciones y Scriptation te avisa antes de renovar tu plan, para que ningún cobro sea una sorpresa."],
+ 'rm.cta':  ["Remind me","Avísame"],
+ 'rm.later':["Not now","Ahora no"],
+ 'rm.at':   ["“Scriptation” Would Like to Send You Notifications","“Scriptation” quiere enviarte notificaciones"],
+ 'rm.ab':   ["Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.","Las notificaciones pueden incluir alertas, sonidos y globos en los íconos. Puedes configurarlas en Ajustes."],
+ 'rm.no':   ["Don’t Allow","No permitir"],
+ 'rm.yes':  ["Allow","Permitir"],
+ 'rm.done': ["You’re all set","Todo listo"]
+};
+/* the five roles of the US listing (Spanish: the Mexico listing's own words), and three of each role's bullets, verbatim */
+var RIC = {
+  dir:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10h16v10H4z"/><path d="m4 10 2.5-5 3 1.2L7 10M10 10l2.5-5 3 1.2L13 10M16 10l2.5-5 1.5.6"/></svg>',
+  prod:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>',
+  sup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 3v18M10 3v6l-2 2 2 2v8M15 4h4M15 9h4M15 14h4M15 19h4"/></svg>',
+  act:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 5h8v6a4 4 0 0 1-8 0zM13 8h8v6a4 4 0 0 1-8 0z"/><path d="M5.5 8.5h.01M8.5 8.5h.01M15.5 11.5h.01M18.5 11.5h.01" stroke-linecap="round" stroke-width="2.2"/></svg>',
+  dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 13a8 8 0 0 1 16 0v5h-3v-5M4 18v-5h3v5z"/></svg>'
+};
+var ROLES = [
+ ['directors','dir',["Directors & Writers","Directores y guionistas"],["Organize your entire prep in one digital production binder.","Organiza toda tu preparación en una carpeta de producción digital."],
+   [["Transfer markups to new revisions automatically in seconds","Transfiere tus anotaciones a las nuevas revisiones en segundos"],["Use layers to separate personal, department, and meeting notes","Separa notas personales, de departamento y de juntas con capas"],["Insert facing pages, shot lists, set plans, and reference images","Inserta páginas enfrentadas, listas de planos, planos del set e imágenes de referencia"]]],
+ ['production','prod',["Production & Departments","Producción y departamentos"],["Break down scripts, tag elements, and generate reports.","Desglosa guiones, etiqueta elementos y genera reportes."],
+   [["Tag props, wardrobe, locations, VFX, SFX, and more with custom categories","Etiqueta utilería, vestuario, locaciones, VFX, SFX y más"],["Generate formatted breakdown reports as PDF or CSV","Genera reportes de desglose en PDF o CSV"],["Transfer tags to new revisions so breakdowns stay current","Transfiere las etiquetas a las nuevas revisiones para mantener el desglose al día"]]],
+ ['supervisors','sup',["Script Supervisors","Continuistas"],["Professional lining and continuity tools built for production.","Herramientas profesionales de lining y continuidad hechas para producción."],
+   [["Generate instant scene coverage tramlines","Genera tramlines de cobertura de escena al instante"],["Add facing page reports and mark takes directly in the script","Agrega reportes en páginas enfrentadas y marca las tomas en el guion"],["Transfer lining and notes when new drafts arrive. Nothing lost.","Transfiere lining y notas cuando llega un nuevo borrador. Sin perder nada."]]],
+ ['actors','act',["Actors","Actores"],["Prepare for auditions and rehearse scenes, no scene partner needed.","Prepara audiciones y ensaya escenas sin compañero de escena."],
+   [["Highlight your character's lines in one tap","Resalta las líneas de tu personaje con un toque"],["Rehearse with customizable character voices and scene looping","Ensaya con voces personalizables y escenas en loop"],["Use Playback Mode as a self-tape teleprompter with slate delays","Usa el Modo Playback como teleprompter para self tapes, con pausa para la presentación"]]],
+ ['dev','dev',["Development Executives","Desarrollo"],["Evaluate scripts faster. Listen to them, mark them up, and share notes.","Evalúa guiones más rápido. Escucha, anota y comparte notas."],
+   [["Listen to scripts with distinct character voices to hear dialogue, pacing, and tone","Escucha voces distintas para percibir diálogo, ritmo y tono"],["Annotate scripts as you read or listen","Anota mientras lees o escuchas"],["Share note layers with creative teams while keeping personal notes separate","Comparte capas de notas con los equipos creativos y mantén tus notas aparte"]]]
+];
+/* Industry Pro's own line in the listing, for a plans screen with no role picked */
+var GEN = [["Advanced Note Transfer and multi-layer transfer","Transferencia de Notas avanzada y transferencia multicapa"],["Collate pages and compare scripts","Compilación de páginas y comparación de guiones"],["Breakdown tagging and reports","Etiquetado y reportes de desglose"]];
+/* the sample script's cast (page 2 of “Draft 1 - Take Notes”) and voices from your voice picker (App Store screenshot 9) */
+var CAST = [['daniella','Daniella','Boss Lady','assets/crop/v-boss.png'],['rob','Rob','Boy Next Door','assets/crop/v-boynext.png'],
+            ['tim','Tim','Astute Advisor','assets/crop/v-astute.png'],['valerie','Valerie','Cheer Captain','assets/crop/v-cheer.png']];
+
+/* ================= one flow per Meta ad (engine) + per-ad copy (EDIT) =================
+   FT.a / FT.b override T keys for that ad's phone. Flow a = the actor ad, flow b = the new-draft ad. */
+var EMBED = /[?&]embed/.test(location.search);
+if(EMBED) document.documentElement.classList.add('embed');
+var FLOW = (location.search.match(/[?&]flow=(a|b)/)||[])[1] || '';
+document.documentElement.classList.add('flow-'+(FLOW||'a'));
+var FT = {
+ a:{},
+ b:{
+  'fb.text':["New draft? No problem. Scriptation carries your notes into the revised pages, so you can stay focused on the work.","New draft? No problem. Scriptation carries your notes into the revised pages, so you can stay focused on the work."],
+  'fb.btn': ["See details","See details"],
+  'as.q':   ["“Scriptation changed my life. Every time you get a new draft, it transfers all your notes.” <i>(Sophia Bush)</i>","«Scriptation cambió mi vida. Con cada nueva versión, transfiere todas mis notas». <i>(Sophia Bush)</i>"],
+  'wel.h':  ["New draft? <em>No problem.</em>","¿Nuevo borrador? <em>Sin problema.</em>"],
+  'wel.sub':["Scriptation carries your notes into the revised pages, so you can stay focused on the work.","Scriptation lleva tus notas a las páginas revisadas, para que te concentres en el trabajo."],
+  'sa.c0':  ["Draft 2 just arrived. Bring your notes over from Draft 1.","Llegó Draft 2. Trae tus notas de Draft 1."],
+  'sa.c1':  ["Transferring your notes…","Transfiriendo tus notas…"],
+  'sa.c2':  ["Your notes from Draft 1 are on Draft 2.","Tus notas de Draft 1 ya están en Draft 2."],
+  'pw.h':   ["Every note, in <em>every new draft</em>.","Cada nota, en <em>cada nuevo borrador</em>."]
+ }
+};
+if(FT[FLOW]) Object.keys(FT[FLOW]).forEach(function(k){ T[k]=FT[FLOW][k]; });
+
+/* ================= state (defaults(): answers pre-filled per ad, so a step jump lands mid-flow) ================= */
+function defaults(){ return { lang:S0.lang, theme:S0.theme, role: FLOW==='b' ? '' : 'actors', rolePre: FLOW!=='b', part:'valerie',
+  sa: +((location.search.match(/[?&]sa=(\d)/)||[0,0])[1]), cue:5, play:false, plan:'hi', ai:false }; }
+var S0 = {lang:'en', theme:'light'};
+var S = defaults();
+function L(){ return LANGS.indexOf(S.lang); }
+function t(k,v){ var s=(T[k]||[k])[L()]; if(v) Object.keys(v).forEach(function(x){ s=s.split('{'+x+'}').join(v[x]); }); return s; }
+function role(){ return ROLES.filter(function(r){ return r[0]===S.role; })[0]; }
+
+/* ================= builders (re-run on language change) ================= */
+function buildRoles(){ var g=document.getElementById('roList'); g.innerHTML='';
+  ROLES.forEach(function(r){ var b=document.createElement('button'); b.className='ro-opt'; b.dataset.v=r[0];
+    b.innerHTML='<span class="ic">'+RIC[r[1]]+'</span><span class="tx"><b>'+r[2][L()]+'</b><small>'+r[3][L()]+'</small></span><i class="ck">✓</i>';
+    b.addEventListener('click',function(){ S.role=r[0]; S.rolePre=false; syncScreen(); });
+    g.appendChild(b); }); }
+function buildCast(){
+  var c=document.getElementById('rhCast'); c.innerHTML='';
+  CAST.forEach(function(x){ var b=document.createElement('button'); b.textContent=x[1]; b.dataset.v=x[0];
+    b.addEventListener('click',function(){ S.part=x[0]; syncScreen(); }); c.appendChild(b); });
+  document.querySelectorAll('.pg-act .pg-d').forEach(function(d){
+    var x=CAST.filter(function(c){ return c[0]===d.dataset.who; })[0]; if(!x) return;
+    var v=document.createElement('span'); v.className='vb'; v.innerHTML='<img src="'+x[3]+'" alt="">'; d.appendChild(v); });
+}
+function applyStatic(){
+  document.documentElement.lang=S.lang;
+  document.querySelectorAll('[data-t]').forEach(function(el){ el.textContent=t(el.dataset.t); });
+  document.querySelectorAll('[data-th]').forEach(function(el){ el.innerHTML=t(el.dataset.th); });
+  buildRoles();
+  document.getElementById('adGo').classList.remove('open');
+  document.getElementById('asGet').classList.remove('open');
+}
+
+/* ================= everything downstream reads S ================= */
+function syncScreen(){
+  document.querySelectorAll('#roList .ro-opt').forEach(function(b){ b.classList.toggle('on', b.dataset.v===S.role); });
+  document.getElementById('roPre').classList.toggle('off', !(S.rolePre && S.role));
+  /* try it */
+  var sec=scr.sample, A=FLOW!=='b';
+  sec.classList.toggle('sa-a1', A && S.sa>=1); sec.classList.toggle('sa-b1', !A && S.sa===1); sec.classList.toggle('sa-b2', !A && S.sa>=2);
+  document.getElementById('saDone').classList.toggle('on', A ? S.sa>=1 : S.sa>=2);
+  document.getElementById('saCoachT').textContent=t('sa.c'+((!A&&S.sa===1&&S.trDone)?2:Math.min(S.sa,2)));
+  var me=CAST.filter(function(c){ return c[0]===S.part; })[0];
+  document.getElementById('rhAs').textContent=me[1]+' ›';
+  document.querySelector('#pbWho b').textContent=me[1];
+  document.querySelectorAll('#rhCast button').forEach(function(b){ b.classList.toggle('on', b.dataset.v===S.part); });
+  document.getElementById('rhVoices').innerHTML=CAST.filter(function(c){ return c[0]!==S.part; }).map(function(c){
+    return '<div class="rh-v"><svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="13" r="8"/><path d="M9.5 9.5v7l5.5-3.5z" fill="currentColor"/><path d="M18 3l.6 1.6L20 5l-1.4.5L18 7l-.6-1.5L16 5l1.4-.4z" fill="currentColor" stroke="none"/></svg><b>'+c[1]+'</b><span>'+c[2]+'</span><img src="'+c[3]+'" alt=""></div>'; }).join('');
+  var lines=document.querySelectorAll('.pg-act .pg-d');
+  lines.forEach(function(d){ d.classList.toggle('mine', d.dataset.who===S.part); d.classList.toggle('cue', S.sa>=1 && +d.dataset.i===S.cue);
+    d.dataset.you=t('rh.you'); var v=d.querySelector('.vb'); if(v) v.style.visibility=(d.dataset.who===S.part?'hidden':''); });
+  document.getElementById('pbPlay').classList.toggle('on', S.play);
+  if(!A){ var dim=document.getElementById('trDim'); dim.classList.toggle('done', S.sa>=1 && S.trDone===true);
+    document.querySelectorAll('#trProg div').forEach(function(d,i){ d.classList.toggle('ok', i<(S.trStep||0)); d.classList.toggle('now', i===(S.trStep||0)); }); }
+  /* the plans */
+  var r=role(), list=(r?r[4]:GEN).map(function(x){ return x[L()]; });
+  if(!A) list=[GEN[0][L()]].concat(r?r[4].map(function(x){ return x[L()]; }):GEN.slice(1).map(function(x){ return x[L()]; }));
+  document.getElementById('pwList').innerHTML=list.map(function(x){ return '<li>'+x+'</li>'; }).join('');
+  var rr=document.getElementById('pwRole'); rr.textContent=r?t('pw.for',{r:r[2][L()]}):''; rr.style.display=r?'':'none';
+  document.querySelectorAll('#planList .p-plan').forEach(function(b){ b.classList.toggle('on', b.dataset.v===S.plan); });
+  var ai=document.getElementById('pwAi'); ai.classList.toggle('off', S.role!=='actors'); ai.classList.toggle('on', S.ai && S.role==='actors');
+  var p=t(S.plan==='lo'?'pw.lo':'pw.hi');
+  document.getElementById('pwT3').innerHTML=t('pw.t3s',{p:p});
+  document.getElementById('payFoot').innerHTML=t('pw.foot',{p:p})+(S.ai&&S.role==='actors'?t('pw.plusai',{a:t('pw.aip')}):'');
+}
+
+/* ================= router ================= */
+var ORDER=['search','store','welcome','role','sample','paywall','offer','remind'];
+var LABEL={search:'The ad',store:'App Store',welcome:'Welcome',role:'Your role',sample:'Try it',paywall:'Plans',offer:'Offer on close',remind:'Reminder'};
+var scr={}, hist=[], cur='search';
+document.querySelectorAll('.scr').forEach(function(s){ scr[s.dataset.id]=s; });
+
+function chrome(){ var l=!!scr[cur].dataset.light;
+  document.getElementById('sbar').classList.toggle('light',l); document.getElementById('homebar').classList.toggle('light',l); }
+function tell(m){ if(EMBED && window.parent!==window){ m.flow=FLOW; window.parent.postMessage(m,'*'); } }
+function resetNotify(){ document.getElementById('rmDim').classList.remove('on'); document.getElementById('rmDone').classList.remove('on'); }
+var cueT=null, trT=null;
+function stopCue(){ clearInterval(cueT); cueT=null; }
+function startCue(){ stopCue(); if(FLOW==='b'||S.sa<1) return; S.play=true; syncScreen();
+  setTimeout(function(){ showCue(true); },60);
+  cueT=setInterval(function(){ if(cur!=='sample'||!S.play){ return; } S.cue=(S.cue+1)%10; syncScreen(); showCue(); },1600); }
+function showCue(now){ var d=document.querySelector('.pg-act .pg-d.cue'), b=document.getElementById('saBody'); if(!d||!b) return;
+  var y=d.offsetTop-110; if(now||demo.on) b.scrollTop=Math.max(0,y); else b.scrollTo({top:Math.max(0,y),behavior:'smooth'}); }
+function runTransfer(){ clearInterval(trT); S.trStep=0; S.trDone=false; syncScreen();
+  trT=setInterval(function(){ S.trStep++; if(S.trStep>5){ clearInterval(trT); S.trDone=true; } syncScreen(); },demo.on?260:380); }
+function enter(id){ chrome(); paintChips(); paintPanel(); tell({ev:'screen',id:id});
+  if(id==='search') document.getElementById('adGo').classList.remove('open');
+  if(id==='store') document.getElementById('asGet').classList.remove('open');
+  if(id==='sample' && FLOW!=='b' && S.sa>=1) startCue(); else stopCue();
+  if(id==='remind') resetNotify(); }
+function go(id,opts){
+  opts=opts||{}; if(id===cur) return;
+  var from=scr[cur], to=scr[id];
+  if(!opts.back) hist.push(cur);
+  if(from){ from.classList.remove('is-active');
+    if(!to.classList.contains('sheet') && !from.classList.contains('sheet')) from.classList.add('is-past'); }
+  if(to.classList.contains('sheet')) from.classList.add('is-active');
+  Object.keys(scr).forEach(function(k){ if(k!==id&&k!==cur) scr[k].classList.remove('is-active'); });
+  to.classList.remove('is-past'); to.classList.add('is-active');
+  cur=id; enter(id);
+}
+function back(){
+  if(!hist.length) return;
+  var prev=hist.pop();
+  scr[cur].classList.remove('is-active');
+  scr[prev].classList.remove('is-past'); scr[prev].classList.add('is-active');
+  cur=prev; enter(prev);
+}
+function jump(id){
+  var i=ORDER.indexOf(id);
+  Object.keys(scr).forEach(function(k){ scr[k].classList.add('nofx'); scr[k].classList.remove('is-active','is-past'); });
+  hist=ORDER.slice(0,i<0?0:i);
+  if(id==='offer') scr.paywall.classList.add('is-active');
+  scr[id].classList.add('is-active'); cur=id;
+  scr[id].querySelector('.scr-body').scrollTop=0;
+  if(id==='sample' && FLOW==='b' && S.sa===1){ S.trStep=6; S.trDone=true; }
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    Object.keys(scr).forEach(function(k){ scr[k].classList.remove('nofx'); }); }); });
+  syncScreen(); enter(id);
+}
+var chipsBuilt=false;
+function paintChips(){
+  var c=document.getElementById('chips');
+  if(!chipsBuilt){ chipsBuilt=true;
+    ORDER.forEach(function(id){
+      var b=document.createElement('button'); b.className='chip'+(id==='offer'?' offer':''); b.textContent=LABEL[id];
+      b.dataset.id=id; b.onclick=function(){ stopDemo(); jump(id); }; c.appendChild(b);
+    });
+  }
+  c.querySelectorAll('.chip').forEach(function(b){ b.classList.toggle('on', b.dataset.id===cur); });
+}
+function runCar(){}  /* no carousel on these screens; the walkthrough engine calls it */
+
+/* ================= wiring ================= */
+buildCast();
+document.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click',function(){ if(!b.disabled) go(b.dataset.go); }); });
+document.querySelectorAll('[data-back]').forEach(function(b){ b.addEventListener('click',back); });
+document.getElementById('adGo').addEventListener('click',function(){ var b=this; if(b.classList.contains('open')) return;
+  b.classList.add('open'); setTimeout(function(){ if(cur==='search') go('store'); },demo.on?420:600); });
+document.getElementById('asGet').addEventListener('click',function(){ var b=this; if(b.classList.contains('open')) return;
+  b.classList.add('open'); b.textContent=t('as.open'); setTimeout(function(){ b.textContent=t('as.get'); if(cur==='store') go('welcome'); },demo.on?420:700); });
+document.getElementById('welGo').addEventListener('click',function(){ go('role'); });
+document.getElementById('roGo').addEventListener('click',function(){ go('sample'); });
+document.getElementById('rhGo').addEventListener('click',function(){ S.sa=1; S.cue=4; syncScreen(); startCue(); });
+document.getElementById('pbPlay').addEventListener('click',function(){ S.play=!S.play; syncScreen(); });
+document.getElementById('trGo').addEventListener('click',function(){ S.sa=1; runTransfer(); });
+document.getElementById('trOk').addEventListener('click',function(){ S.sa=2; syncScreen(); });
+document.getElementById('saGo').addEventListener('click',function(){ stopCue(); go('paywall'); });
+document.querySelectorAll('#planList .p-plan').forEach(function(b){ b.addEventListener('click',function(){ S.plan=b.dataset.v; syncScreen(); }); });
+document.getElementById('pwAi').addEventListener('click',function(){ S.ai=!S.ai; syncScreen(); });
+document.getElementById('payClose').addEventListener('click',function(){ go('offer'); });
+document.getElementById('payCta').addEventListener('click',function(){ go('remind'); });
+document.getElementById('payFree').addEventListener('click',function(){ go('remind'); });
+function offerToRemind(){ scr.paywall.classList.add('is-past'); go('remind'); }
+document.getElementById('offClose').addEventListener('click',offerToRemind);
+document.getElementById('offFree').addEventListener('click',offerToRemind);
+document.getElementById('offerCta').addEventListener('click',function(){ S.plan='lo'; syncScreen(); offerToRemind(); });
+function rmDone(){ document.getElementById('rmDim').classList.remove('on'); document.getElementById('rmDone').classList.add('on'); }
+document.getElementById('rmOn').addEventListener('click',function(){ document.getElementById('rmDim').classList.add('on'); });
+document.getElementById('rmYes').addEventListener('click',rmDone);
+document.getElementById('rmNo').addEventListener('click',rmDone);
+document.getElementById('rmLater').addEventListener('click',rmDone);
+
+function setSeg(id,attr,val){ document.querySelectorAll('#'+id+' button').forEach(function(b){ b.classList.toggle('on', b.dataset[attr]===val); }); }
+function setLang(l){ S.lang=l; S0.lang=l; setSeg('segLang','lang',l); applyStatic(); syncScreen(); paintPanel(); }
+function setTheme(th){ S.theme=th; S0.theme=th; setSeg('segTheme','theme',th); chrome(); }  /* no dark variant of their screens */
+document.querySelectorAll('#segLang button').forEach(function(b){ b.addEventListener('click',function(){ stopDemo(); setLang(b.dataset.lang); }); });
+document.querySelectorAll('#segTheme button').forEach(function(b){ b.addEventListener('click',function(){ setTheme(b.dataset.theme); }); });
+/* ================= the 30-second walkthrough (engine; captions + taps in startDemo are EDIT) =================
+   Both phones run it at once; flow a's captions show in the host bar. ~30 s total, one caption per screen. */
+var demo={tok:0,on:false,t0:0,iv:null}, finger=document.getElementById('finger'), phoneIn=document.getElementById('phoneIn');
+function W(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function cap(txt){ document.getElementById('demoTxt').textContent=txt; if(FLOW==='a') tell({ev:'cap',txt:txt}); }
+async function tap(sel,tok){
+  if(demo.tok!==tok) throw 0;
+  var el=document.querySelector(sel); if(!el) return;
+  var r=el.getBoundingClientRect(), p=phoneIn.getBoundingClientRect(), z=p.width/phoneIn.offsetWidth||1;
+  finger.style.left=((r.left-p.left+r.width/2)/z)+'px'; finger.style.top=((r.top-p.top+r.height/2)/z)+'px';
+  finger.classList.add('show'); await W(380); if(demo.tok!==tok) throw 0;
+  finger.classList.add('press'); await W(120); finger.classList.remove('press'); el.click(); await W(160);
+  if(demo.tok!==tok) throw 0;
+}
+async function pause(ms,tok){ await W(ms); if(demo.tok!==tok) throw 0; }
+function startDemo(){
+  stopDemo(); var tok=++demo.tok; demo.on=true; demo.t0=Date.now();
+  var keep={lang:S.lang,theme:S.theme}; S=defaults(); S.lang=keep.lang; S.theme=keep.theme;
+  applyStatic(); jump('search');
+  if(!EMBED) document.getElementById('demoCap').classList.remove('hidden');
+  demo.iv=setInterval(function(){ document.getElementById('demoProg').style.width=Math.min(100,(Date.now()-demo.t0)/250)+'%'; },200);
+  (async function(){
+    try{
+      cap('Two Meta ads, one app. Each ad opens its own flow.'); await pause(1900,tok);
+      await tap('#adGo',tok); await pause(500,tok);
+      cap('Both link to the App Store. Here its screenshots answer the ad.'); await pause(1700,tok);
+      await tap('#asGet',tok); await pause(500,tok);
+      cap('The app opens on the ad’s promise: get off book faster, or new draft, no problem.'); await pause(2300,tok);
+      await tap('#welGo',tok);
+      cap('Your five roles. The actor ad already answered; the crew pick theirs.'); await pause(1300,tok);
+      await tap(FLOW==='b'?'#roList [data-v=production]':'#roList .ro-opt.on',tok); await pause(300,tok);
+      await tap('#roGo',tok);
+      cap('Your sample script. Actors rehearse as Valerie; crew carry Draft 1’s notes into Draft 2.'); await pause(1700,tok);
+      await tap(FLOW==='b'?'#trGo':'#rhGo',tok); await pause(2300,tok);
+      if(FLOW==='b'){ await tap('#trOk',tok); } await pause(900,tok);
+      await tap('#saGo',tok);
+      cap('Then Industry Pro at your prices, with the period and the renewal by each one.'); await pause(2500,tok);
+      cap('They close it: your lowest Industry Pro price, and the free app one tap away.'); await tap('#payClose',tok); await pause(2000,tok);
+      await tap('#offerCta',tok);
+      cap('Last, a reminder before it renews.'); await pause(1200,tok);
+      await tap('#rmOn',tok); await pause(600,tok); await tap('#rmYes',tok); await pause(500,tok);
+      cap('That is both flows. The steps under the phones jump to any screen.');
+      finger.classList.remove('show'); await pause(1900,tok); stopDemo(); tell({ev:'demoEnd'});
+    }catch(e){}
+  })();
+}
+function stopDemo(){ if(!demo.on) return; demo.tok++; demo.on=false; clearInterval(demo.iv); finger.classList.remove('show','press');
+  document.getElementById('demoCap').classList.add('hidden'); if(cur==='paywall') runCar(); }
+document.getElementById('demoBtn').addEventListener('click',startDemo);
+document.getElementById('demoStop').addEventListener('click',stopDemo);
+phoneIn.addEventListener('pointerdown',function(e){ if(e.isTrusted && demo.on){ stopDemo(); tell({ev:'demoStop'}); } });
+window.addEventListener('message',function(e){ var m=e.data||{}; if(!EMBED||!m.cmd) return;
+  if(m.cmd==='jump'){ stopDemo(); if(m.id!==cur) jump(m.id); }
+  if(m.cmd==='lang') setLang(m.v);
+  if(m.cmd==='theme') setTheme(m.v);
+  if(m.cmd==='demo') startDemo();
+  if(m.cmd==='stop') stopDemo();
+});
+</script>
+<script>
+/* ---- PANEL (EDIT): one entry per screen: the idea it carries, "Try X, because Y", the range, what was kept ----
+   ctx:true = context screen (no idea, no range). hyp2/n2/out2 = a second idea on the same screen. */
+var PANEL = {
+search:{ctx:true,t:'Your Meta ad',
+ kept:'The ad as it runs: your page name, the primary text, a frame from the video and the button, verbatim from the Meta Ad Library. The bar under the frame shows the App Store link and your app’s name; the ad’s own headline was not part of our read.'},
+store:{ctx:true,t:'Your App Store page',
+ kept:'Your US listing as it is: icon, name, 3.6K ratings at 4.8, age, category, developer, the first line of your description and a quote it carries. Only which three screenshots come first changes per ad.'},
+welcome:{ctx:true,t:'Open on the ad’s promise',
+ kept:'Your App Store art: near-black with navy light, your wordmark, your white headline type, a phone cut from your own screenshots and your Emmy laurel. The headline is the ad’s.'},
+role:{n:2,t:'Ask their role once, then lead the plans with it',
+ hyp:'Try one question with the five roles your listing already sells to, <b>because the listing speaks to directors, crew, script supervisors, actors and executives, while every buyer meets the same first screens</b>. The answer picks the sample and the plans’ first lines.',
+ kept:'Roles and their one-line descriptions are your listing’s, word for word. Cards, blue selection and button follow your store art and your in-app blue.',
+ out:'CR +8–20%'},
+sample:{n:1,t:'Let them try what the ad showed, before the plans',
+ hyp:'Try opening your sample script and doing the one thing the ad showed, <b>because the video promised it in 30 seconds and the app already ships “Draft 1 - Take Notes” and “Draft 2 - Try Transfer” for exactly this</b>.',
+ kept:'Your white page, Courier script, the Rehearse sheet, Playback bar, voice picker art, Transfer Annotations sheet and its progress dialog, rebuilt from your screenshots and the two videos.',
+ out:'CR +10–20%'},
+paywall:{n:3,t:'Put the period and the renewal next to every price',
+ hyp:'Try the billing period and the renewal next to each Industry Pro price and under the button, <b>because your public list gives four prices and no periods, and a reviewer “Thought I was only getting one month… it charged me $99.99”</b>.',
+ hyp2:'Try leading with the tools of the role they picked, in your listing’s words, <b>because they just told you what they do</b>.',
+ n2:2, out2:'CR +8–20%',
+ kept:'Your store art, wordmark and in-app blue. Prices are your US App Store prices. The dashed “period” marks where your period goes: we could not see it.',
+ out:'CR +3–8%'},
+offer:{n:4,t:'Catch the close with your lowest Industry Pro price',
+ hyp:'Try a second screen when someone closes the plans, with Industry Pro at $14.99 and its period, <b>because someone who will not commit at $99.99 may still start at your lowest price</b>. The free app stays one tap away. No timer and no discount: the price is your own.',
+ kept:'The same cards and button as the plans screen.',
+ out:'CR +3–8%'},
+remind:{n:5,t:'Offer a reminder before it renews',
+ hyp:'Try asking for notifications after the plans, for one reason, <b>because a reviewer wrote “It told me I can get the free trial and can cancel anytime. It charged me for the first month.”</b>, and a reminder answers that before it happens.',
+ kept:'Your icon on the lock screen. The prompt text is Apple’s.',
+ out:'CR +3–8%'}
+};
+
+function outBlock(lab,val){
+  return '<div class="pn-out"><div class="lab">'+lab+'</div><div class="v">'+val+'</div></div>';
+}
+function paintPanel(){
+  var d=PANEL[cur]; if(!d) return;
+  var h='';
+  if(d.ctx){
+    h += '<div class="pn-n ctx">Context · no change proposed</div><h3 class="pn-t">'+d.t+'</h3>'
+       + '<div class="pn-kept">'+d.kept+'</div>';
+  } else {
+    h += '<div class="pn-n">Idea '+d.n+' of 5</div><h3 class="pn-t">'+d.t+'</h3>'
+       + '<p class="pn-hyp">'+d.hyp+'</p>'
+       + outBlock('Potential outcome · based on Adapty data', d.out);
+    if(d.hyp2){
+      h += '<div class="pn-sep"></div>'
+         + '<div class="pn-n">Idea '+d.n2+' of 5</div>'
+         + '<p class="pn-hyp" style="margin-top:12px">'+d.hyp2+'</p>'
+         + outBlock('Potential outcome · based on Adapty data', d.out2);
+    }
+    h += '<div class="pn-kept"><b>Your design, unchanged.</b> '+d.kept+'</div>';
+  }
+  if(S.lang!=='en') h += '<div class="pn-kept"><b>Language.</b> Screens are shown in '+langName(S.lang)+' to show one flow serving every market. '+META.langNote+'</div>';
+  h += '<div class="pn-foot">Ranges are Adapty’s expected effect from tests across 30,000+ subscription apps, not measured lift for '+META.app+'. '
+     + 'Every screen after the App Store is a proposal: we have not seen your live onboarding.</div>';
+  document.getElementById('panel').innerHTML = h;
+}
+
+
+/* ================= host: two phones, one step bar =================
+   P3 (EDIT): per screen. diff:true = the two ad flows differ here -> a / b cards {hyp, tag (hypothesis)}.
+   The ad layer carries no range: only a test per ad gives one. Screens without diff fall back to PANEL. */
+var HYP_ROUTE='Which ad brought the install has to reach the app on first open, from your attribution setup. We have not seen it. Without it, the role question alone picks the flow: that is why it comes before the sample.';
+var HYP_CPP='A custom product page in App Store Connect for each ad, with these three screenshots first, linked from that ad. We have not seen whether you run custom product pages today.';
+var P3 = {
+search:{diff:true,t:'Two ads, two promises',
+ a:{hyp:'Your actor video, running since 27 Aug 2026 under “Actors, get off book faster!”: it opens on “actors do not do this”, then shows auto-highlight, character voices and Playback, and ends on “FREE!”. <b>It sells running lines without a scene partner.</b>'},
+ b:{hyp:'Your crew video, running since 13 Oct 2026 under “New draft? No problem.”: paper revisions on set, then “Transfer notes from draft to draft in seconds” and your Transfer Annotations sheet. <b>It sells notes that survive revisions.</b>'},
+ note:'Both link to the App Store, like all 7 active ads on your Scriptation page in the Meta Ad Library. Three of them are for actors, one for crew, three for directors in Spanish.'},
+store:{diff:true,t:'Screenshots that answer the ad',
+ a:{hyp:'“Run lines and self-tape”, “Listen to scripts with lifelike voices” and “Break down and mark up scripts” come first, <b>because the actor saw Playback and voices a second ago</b>. Today your first screenshot is the wordmark.',tag:HYP_CPP},
+ b:{hyp:'“Transfer notes and save hours of prep”, “Compare drafts to quickly see changes” and “Organize your notes into layers” come first, <b>because the ad was about a new draft</b>. Your third screenshot today becomes the first.',tag:HYP_CPP},
+ note:'All six are your own US screenshots, uncut. Rating, ages, category and description are your listing’s.'},
+welcome:{diff:true,t:'Open on the ad’s promise',
+ a:{hyp:'“Actors, get off book faster.” over your “Run lines and self-tape” phone, with your listing’s line: highlight your character’s lines in one tap, no scene partner needed. <b>The first thing they read is what the ad promised.</b>',tag:HYP_ROUTE},
+ b:{hyp:'“New draft? No problem.” and the ad’s own sentence, over your marked-up Draft 1. <b>The same screen, the other ad’s reason to keep going.</b>',tag:HYP_ROUTE},
+ note:'Your wordmark, Emmy laurel and “The industry standard app for Film & TV” stay on both.'},
+role:{diff:true,t:'Ask once; the ad may already have answered',idea:2,
+ a:{hyp:'Actors is already picked, with a line saying why, <b>because only an actor taps “Actors, get off book faster!”</b>. One tap to confirm or change.'},
+ b:{hyp:'Nothing is picked. <b>A new draft lands on everyone on set</b>, and your three crew roles already lead the list in your listing’s order.'},
+ note:'The five roles and their lines are your listing’s headings, word for word.'},
+sample:{diff:true,t:'Do the thing the ad showed, on your sample',idea:1,
+ a:{hyp:'“Draft 1 - Take Notes”, page 2: Rehearse as Valerie, her lines auto-highlighted, Daniella, Rob and Tim read by voices from your picker, Playback running. <b>The video’s 30 seconds, done by them.</b>'},
+ b:{hyp:'“Draft 2 - Try Transfer” arrives: Transfer Annotations from Draft 1, your five progress steps, “Success!”, and Draft 1’s highlights now on Draft 2. <b>The ad’s promise, on their screen.</b>'},
+ note:'Your app ships both sample drafts; we saw them in your crew video and your screenshots. The page text is page 2 of Draft 1 as screenshot 2 shows it. We have not seen whether Playback and Transfer run before purchase.'},
+paywall:{diff:true,t:'One plans screen, two headlines',idea:3,idea2:2,
+ a:{hyp:'“Get off book faster.” with the actor tools first, and Scriptation AI from $19.99 offered beside Industry Pro, unticked, <b>because the lifelike voices the actor ads promise need your separate AI subscription</b>, and 2026 reviews call the voices “robotic”.'},
+ b:{hyp:'“Every note, in every new draft.” with Advanced Note Transfer first, then the tools of the role they picked. <b>The headline is the ad’s, the list is their job.</b>'},
+ note:'Both show Industry Pro at $99.99 and $14.99, your highest and lowest US prices. Your public list gives no period for either: the dashed “period” is where yours goes.'},
+offer:{idea:4},
+remind:{idea:5}
+};
+var IDEAS5 = META.ideas.map(function(x){ return [x.n, x.short||x.title, x.impact, x.screen]; });
+var H = {cur:{a:'search', b:'search'}, step:'search', ready:{}, demo:false, t0:0, iv:null, lang:'en', one:'a'};
+var KWI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M16.5 9a4 4 0 0 1 0 6"/></svg>';
+function frames(){ return {a:document.querySelector('.flow.ka iframe'), b:document.querySelector('.flow.kb iframe')}; }
+function send(flow,m){ var f=frames()[flow]; if(f&&f.contentWindow) f.contentWindow.postMessage(m,'*'); }
+function sendBoth(m){ send('a',m); send('b',m); }
+function hostJump(id){ hostStopDemo(true); H.cur.a=H.cur.b=id; sendBoth({cmd:'jump',id:id}); setStep(id); }
+function setStep(id){ H.step=id; paintSteps(); paintHostPanel(); }
+function paintSteps(){
+  var c=document.getElementById('hSteps');
+  if(!c.childElementCount) ORDER.forEach(function(id){ var b=document.createElement('button'); b.className='step'+(P3[id]&&P3[id].diff?' diff':'');
+    b.textContent=LABEL[id]; b.dataset.id=id; b.title=P3[id]&&P3[id].diff?'The two flows differ on this screen':'Same in both flows';
+    b.onclick=function(){ hostJump(id); }; c.appendChild(b); });
+  c.querySelectorAll('.step').forEach(function(b){ b.classList.toggle('on',b.dataset.id===H.step); });
+}
+function kcard(flow,d){
+  var kw=META.kw[flow].label;
+  var h='<div class="kc '+flow+'"><div class="kk">'+KWI+kw+'</div><p>'+d.hyp+'</p>';
+  if(d.tag) h+='<span class="hyptag"><b>Hypothesis</b>'+d.tag+'</span>';
+  if(d.out!==undefined) h+='<div class="ko"><span>Potential outcome</span>'+(d.out?'<b>'+d.out+'</b>':'<b class="nc">No change</b>')+'</div>';
+  return h+'</div>';
+}
+function paintHostPanel(){
+  var id=H.step, d=P3[id]||{}, b=PANEL[id]||{}, h='';
+  var here=d.diff?[d.idea,d.idea2]:[b.n,b.n2]; here=here.filter(Boolean);
+  h+='<details class="sh"><summary><div class="top"><span class="lab"><small>Built into both flows</small>The 5 ideas from the audit</span>'
+    +'<span class="more"><span class="o">Show all ▾</span><span class="c">Hide ▴</span></span></div><div class="lit">';
+  IDEAS5.forEach(function(x){ h+='<button class="'+(here.indexOf(x[0])>-1?'on':'')+'" data-go="'+x[3]+'" title="'+x[1]+'">0'+x[0]+'</button>'; });
+  h+='<span>'+(here.length?'Lit = on this screen':'None on this screen')+'</span></div></summary><ol>';
+  IDEAS5.forEach(function(x){ h+='<li class="'+(here.indexOf(x[0])>-1?'on':'')+'" data-go="'+x[3]+'"><span class="n">0'+x[0]+'</span><span class="t">'+x[1]+'</span><span class="o">'+x[2]+'</span></li>'; });
+  h+='</ol></details>';
+  if(d.diff){
+    h+='<div class="pn-badge"><i></i>'+LABEL[id]+' · differs by ad</div><h3 class="pn-t">'+d.t+'</h3>';
+    h+=kcard('a',d.a)+kcard('b',d.b);
+    if(d.note) h+='<div class="pn-note">'+d.note+'</div>';
+    if(d.idea){ h+='<div class="pn-also"><div class="lab">Also on this screen, in both flows</div>';
+      [d.idea,d.idea2].filter(Boolean).forEach(function(n){ var x=IDEAS5[n-1]; h+='<div class="row"><span>Idea '+n+' · '+x[1]+'</span><span class="o">'+x[2]+'</span></div>'; });
+      h+='</div>'; }
+  } else if(b.ctx){
+    h+='<div class="pn-badge same"><i></i>'+LABEL[id]+' · same in both flows</div><h3 class="pn-t">'+b.t+'</h3><div class="pn-kept">'+b.kept+'</div>';
+  } else {
+    h+='<div class="pn-badge same"><i></i>'+LABEL[id]+' · same in both flows</div>';
+    h+='<div class="pn-n" style="margin-top:14px">Idea '+b.n+' of 5</div><h3 class="pn-t">'+b.t+'</h3><p class="pn-hyp">'+b.hyp+'</p>'
+      +outBlock('Potential outcome · based on Adapty data',b.out);
+    if(d.note) h+='<div class="pn-note">'+d.note+'</div>';
+    h+='<div class="pn-kept"><b>Your design, unchanged.</b> '+b.kept+'</div>';
+  }
+  if(H.lang!=='en') h+='<div class="pn-kept"><b>Language.</b> Screens are shown in '+langName(H.lang)+' to show both flows serving every market. '+META.langNote+'</div>';
+  h+='<div class="pn-foot">Ranges are Adapty’s expected effect from tests across 30,000+ subscription apps, not measured lift for '+META.app+'. Prices, ratings, quotes and feature lines come from your own published material.</div>';
+  var p=document.getElementById('hPanel'); var wasOpen=p.querySelector('details.sh[open]'); p.innerHTML=h;
+  if(wasOpen) p.querySelector('details.sh').open=true;
+  p.querySelectorAll('.sh [data-go]').forEach(function(el){ el.onclick=function(e){ e.preventDefault(); e.stopPropagation(); hostJump(el.dataset.go); }; });
+}
+function hostSeg(attr,v){ document.querySelectorAll('[data-h'+attr+']').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-h'+attr)===v); }); }
+document.querySelectorAll('[data-hlang]').forEach(function(b){ b.addEventListener('click',function(){ H.lang=b.dataset.hlang; hostSeg('lang',H.lang); sendBoth({cmd:'lang',v:H.lang}); paintHostPanel(); }); });
+document.querySelectorAll('[data-htheme]').forEach(function(b){ b.addEventListener('click',function(){ hostSeg('theme',b.dataset.htheme); sendBoth({cmd:'theme',v:b.dataset.htheme}); }); });
+function hostDemo(){
+  if(!(H.ready.a&&H.ready.b)){ setTimeout(hostDemo,150); return; }
+  hostStopDemo(true); H.demo=true; H.t0=Date.now(); H.cur.a=H.cur.b='search'; setStep('search');
+  document.getElementById('hSteps').classList.add('hidden'); document.getElementById('hCap').classList.remove('hidden');
+  document.getElementById('hCapT').textContent='';
+  H.iv=setInterval(function(){ document.getElementById('hProg').style.width=Math.min(100,(Date.now()-H.t0)/250)+'%'; },200);
+  sendBoth({cmd:'demo'});
+}
+function hostStopDemo(quiet){
+  if(!H.demo) return; H.demo=false; clearInterval(H.iv);
+  document.getElementById('hSteps').classList.remove('hidden'); document.getElementById('hCap').classList.add('hidden');
+  if(!quiet) sendBoth({cmd:'stop'});
+}
+document.getElementById('hStop').addEventListener('click',function(){ hostStopDemo(); });
+document.querySelectorAll('[data-hdemo]').forEach(function(b){ b.addEventListener('click',hostDemo); });
+window.addEventListener('message',function(e){
+  var m=e.data||{}; if(EMBED||!m.ev||!m.flow) return;
+  var other=m.flow==='a'?'b':'a';
+  if(m.ev==='screen'){ var was=H.ready.a&&H.ready.b; H.ready[m.flow]=true; H.cur[m.flow]=m.id;
+    if(!was&&H.ready.a&&H.ready.b){ var sp=(location.search.match(/[?&]step=(\w+)/)||[])[1]; if(sp&&ORDER.indexOf(sp)>-1){ hostJump(sp); return; } }
+    if(!H.demo && H.cur[other]!==m.id){ H.cur[other]=m.id; send(other,{cmd:'jump',id:m.id}); }
+    if(m.id!==H.step) setStep(m.id); }
+  if(m.ev==='cap') document.getElementById('hCapT').textContent=m.txt;
+  if(m.ev==='demoEnd') hostStopDemo(true);
+  if(m.ev==='demoStop') hostStopDemo();
+});
+/* mobile: one phone at a time */
+document.querySelectorAll('#mtog button').forEach(function(b){ b.addEventListener('click',function(){
+  H.one=b.dataset.one; document.querySelectorAll('#mtog button').forEach(function(x){ x.classList.toggle('on',x===b); });
+  document.querySelectorAll('.duo .flow').forEach(function(f){ f.classList.toggle('show',f.dataset.flow===H.one); }); fit(); }); });
+document.getElementById('drawerBtn').addEventListener('click',function(){ document.body.classList.toggle('drawer'); });
+/* phones scale to the window: always one screen, no scrolling */
+function fit(){
+  if(EMBED) return;
+  var p3=document.getElementById('p3'), st=document.getElementById('p3Stage'), duo=document.getElementById('duo');
+  if(!document.getElementById('view-proto').classList.contains('on')) return;
+  var W=st.clientWidth-40, mobile=innerWidth<760, s;
+  if(mobile){
+    p3.className='p3 top one';
+    var Hm=innerHeight-58-14-50-56-(document.querySelector('.p3-mtools').offsetHeight||0)-110;
+    s=Math.min(1,(W+16)/390);
+  } else {
+    var Hs=duo.clientHeight-4;
+    var sSide=Math.min(1,Hs/844,(W-2*188-3*22)/(2*390));
+    var sTop=Math.min(1,(Hs-42)/844,(W-22)/(2*390));
+    var side=sSide>=sTop-0.01; p3.className='p3 '+(side?'side':'top'); s=side?sSide:sTop;
+  }
+  s=Math.max(.42,s);
+  document.querySelectorAll('.pbox').forEach(function(p){ p.style.width=Math.round(390*s)+'px'; p.style.height=Math.round(844*s)+'px';
+    p.firstElementChild.style.transform='scale('+s+')'; });
+  p3.dataset.scale=Math.round(s*100);
+}
+addEventListener('resize',fit);
+
+/* ---- views, jumps from the overview ---- */
+function showView(v){
+  if(v!=='proto'){ stopDemo(); if(!EMBED) hostStopDemo(); document.body.classList.remove('drawer'); }
+  document.body.classList.toggle('proto',v==='proto' && !EMBED);
+  document.querySelectorAll('.view').forEach(function(x){ x.classList.remove('on'); });
+  document.getElementById('view-'+v).classList.add('on');
+  document.querySelectorAll('.nav-links button[data-view]').forEach(function(b){ b.classList.toggle('on', b.dataset.view===v); });
+  window.scrollTo(0,0);
+  if(v==='proto') requestAnimationFrame(fit);
+}
+document.querySelectorAll('[data-view]').forEach(function(b){ b.addEventListener('click',function(){ showView(b.dataset.view); }); });
+document.querySelectorAll('.idea[data-jump]').forEach(function(b){
+  b.addEventListener('click',function(){ showView('proto'); hostJump(b.dataset.jump); });
+});
+document.querySelectorAll('[data-kwjump]').forEach(function(b){
+  b.addEventListener('click',function(){ showView('proto'); hostJump(b.dataset.kwjump); });
+});
+document.querySelectorAll('[data-demo]').forEach(function(b){ b.addEventListener('click',function(){ showView('proto'); hostDemo(); }); });
+
+applyStatic();
+scr.search.classList.add('is-active');
+syncScreen(); chrome(); paintChips(); paintPanel();
+if(/[?&](open=proto|embed)/.test(location.search)) showView('proto');
+if(!EMBED){ paintSteps(); paintHostPanel(); fit(); }
+else if(window.parent===window){  /* a lone phone (shoot.sh): &lang= and &step= */
+  var lg0=(location.search.match(/[?&]lang=(\w+)/)||[])[1]; if(lg0&&LANGS.indexOf(lg0)>-1) setLang(lg0);
+  var st0=(location.search.match(/[?&]step=(\w+)/)||[])[1]; if(st0&&scr[st0]&&st0!==cur) jump(st0);
+} else tell({ev:'screen',id:cur});
+
+/* ---- ?selfcheck: the page audits its own wiring; asa-check.py reads the result off <body data-selfcheck> ---- */
+function selfCheck(){
+  var E=[], W=[], n=LANGS.length, has=function(o,k){ return Object.prototype.hasOwnProperty.call(o,k); };
+  Object.keys(T).forEach(function(k){ if(!Array.isArray(T[k])||T[k].length!==n) E.push('copy: T["'+k+'"] has '+(Array.isArray(T[k])?T[k].length:'no')+' entries for '+n+' languages'); });
+  ['a','b'].forEach(function(f){ Object.keys(FT[f]||{}).forEach(function(k){
+    if(!Array.isArray(FT[f][k])||FT[f][k].length!==n) E.push('copy: FT.'+f+'["'+k+'"] has '+(FT[f][k]||[]).length+' entries for '+n+' languages');
+    if(!has(T,k)) W.push('copy: FT.'+f+' overrides "'+k+'", which T does not define (the other flow shows the key name)'); }); });
+  document.querySelectorAll('[data-t],[data-th]').forEach(function(el){ var k=el.dataset.t||el.dataset.th; if(!has(T,k)) E.push('copy: data-t "'+k+'" is not in T'); });
+  var ids=Object.keys(scr);
+  ORDER.forEach(function(id){ if(!scr[id]) E.push('screens: ORDER names "'+id+'" but no <section data-id="'+id+'">'); if(!LABEL[id]) E.push('screens: LABEL has no "'+id+'"'); });
+  ids.forEach(function(id){ if(ORDER.indexOf(id)<0) W.push('screens: <section data-id="'+id+'"> is not in ORDER (unreachable from the step bar)'); });
+  if(ORDER[0]!=='search') E.push('screens: the flow must open on the App Store search screen ("search")');
+  var shown={};
+  ORDER.forEach(function(id){ var p=PANEL[id], d=P3[id]||{};
+    if(d.diff){
+      ['a','b'].forEach(function(f){ if(!d[f]||!d[f].hyp) E.push('panel: P3.'+id+' differs by keyword but has no '+f+'.hyp'); });
+      if(!d.t) E.push('panel: P3.'+id+' needs a title (t)');
+      [d.idea,d.idea2].forEach(function(x){ if(x) shown[x]=1; });
+    } else if(!p && id!=='search') E.push('panel: no PANEL.'+id+' and no P3.'+id+'.diff (the panel would be empty)');
+    if(p && !p.ctx){
+      if(!(p.n>=1&&p.n<=5)) E.push('panel: PANEL.'+id+'.n must be an idea number 1-5'); else shown[p.n]=1;
+      if(p.n2) shown[p.n2]=1;
+      if(!/\btry\b/i.test(p.hyp||'')||!/because/.test(p.hyp||'')) W.push('panel: PANEL.'+id+'.hyp should read "Try X, <b>because Y</b>"');
+      var words=(p.hyp||'').replace(/<[^>]+>/g,'').split(/\s+/).length; if(words>60) W.push('panel: PANEL.'+id+'.hyp is '+words+' words (keep it under ~55)');
+      if(!p.out) E.push('panel: PANEL.'+id+' has no potential outcome (out)');
+    }
+  });
+  if(META.ideas.length!==5) E.push('meta: '+META.ideas.length+' ideas -- the page promises five');
+  META.ideas.forEach(function(x,i){ if(x.n!==i+1) E.push('meta: ideas must be numbered 1-5 in order'); if(!scr[x.screen]) E.push('meta: idea '+x.n+' opens "'+x.screen+'", which is not a screen');
+    if(!shown[x.n]) W.push('meta: idea '+x.n+' is not lit on any screen (PANEL n/n2 or P3 idea/idea2)'); });
+  var rows=META.kwRows.map(function(r){ return r.screen; });
+  rows.forEach(function(s){ if(!scr[s]) E.push('meta: kwRows names "'+s+'", which is not a screen'); else if(!(P3[s]&&P3[s].diff)) W.push('meta: kwRows lists "'+s+'" but P3.'+s+' is not diff:true'); });
+  ORDER.forEach(function(id){ if(P3[id]&&P3[id].diff&&rows.indexOf(id)<0) W.push('meta: P3.'+id+' differs by keyword but is missing from kwRows'); });
+  ['a','b'].forEach(function(f){ var k=META.kw[f]||{}; ['q','short','who'].forEach(function(x){ if(!k[x]) E.push('meta: kw.'+f+'.'+x+' is empty'); }); });
+  if(!/^https:\/\/[\w-]+\.github\.io\/[\w.-]+\/$/.test(META.liveUrl||'')) W.push('meta: liveUrl should be https://<owner>.github.io/<repo>/ (publish-gh.sh refuses a mismatch)');
+  document.body.setAttribute('data-selfcheck',JSON.stringify({errors:E,warnings:W}));
+  return {errors:E,warnings:W};
+}
+if(!EMBED && /[?&]selfcheck/.test(location.search)) selfCheck();
+</script>
+</body>
+</html>
